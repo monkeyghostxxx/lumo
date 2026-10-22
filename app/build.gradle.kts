@@ -11,8 +11,8 @@ android {
         applicationId = "mx.lumo.auto"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "2.1"
+        versionCode = 4
+        versionName = "3.0"
     }
 
     buildTypes {
@@ -38,6 +38,7 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
 
     // Android Auto (Car App Library)
     implementation("androidx.car.app:app:1.4.0")

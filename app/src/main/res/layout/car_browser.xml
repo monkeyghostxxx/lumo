@@ -4,13 +4,13 @@
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <!-- La página ocupa toda la pantalla -->
+    <!-- Página de orilla a orilla -->
     <FrameLayout
         android:id="@+id/web_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Video en pantalla completa: solo el video -->
+    <!-- Video en pantalla completa -->
     <FrameLayout
         android:id="@+id/fullscreen_container"
         android:layout_width="match_parent"
@@ -27,33 +27,128 @@
         android:layout_gravity="top"
         android:alpha="0"
         android:max="100"
-        android:progressBackgroundTint="#00000000"
-        android:progressTint="#FFFFFF" />
+        android:progressBackgroundTint="#00000000" />
 
-    <!-- Auto en movimiento -->
+    <!-- Modo audio (auto en movimiento): la imagen se tapa, el sonido sigue -->
     <FrameLayout
-        android:id="@+id/moving_overlay"
+        android:id="@+id/audio_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#E6000000"
+        android:background="#F0050507"
         android:clickable="true"
         android:visibility="gone">
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/bg_glass_card"
-            android:gravity="center"
-            android:lineSpacingExtra="6dp"
-            android:paddingStart="36dp"
-            android:paddingTop="24dp"
-            android:paddingEnd="36dp"
-            android:paddingBottom="24dp"
-            android:text="En pausa\nDisponible con el auto detenido"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="40dp"
+            android:paddingTop="26dp"
+            android:paddingEnd="40dp"
+            android:paddingBottom="26dp">
+
+            <TextView
+                android:id="@+id/audio_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.2"
+                android:text="MODO AUDIO"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/audio_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:maxWidth="560dp"
+                android:maxLines="2"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="La imagen vuelve al detenerte"
+                android:textColor="#80FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
     </FrameLayout>
+
+    <!-- Modo ambiente: solo el reloj -->
+    <FrameLayout
+        android:id="@+id/ambient"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="#000000"
+        android:clickable="true"
+        android:visibility="gone" />
+
+    <!-- Relacionados -->
+    <LinearLayout
+        android:id="@+id/related_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_glass_card"
+        android:clickable="true"
+        android:elevation="16dp"
+        android:orientation="vertical"
+        android:paddingTop="14dp"
+        android:paddingBottom="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="22dp"
+            android:paddingEnd="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-medium"
+                android:text="Relacionados"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+            <ImageButton
+                android:id="@+id/related_close"
+                style="@style/GlassIcon"
+                android:contentDescription="Cerrar"
+                android:src="@drawable/ic_close" />
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:id="@+id/related_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:clipToPadding="false"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/related_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+    </LinearLayout>
 
     <!-- Aviso flotante -->
     <TextView
@@ -64,10 +159,10 @@
         android:layout_marginTop="20dp"
         android:alpha="0"
         android:background="@drawable/bg_glass_pill"
-        android:elevation="10dp"
-        android:paddingStart="20dp"
+        android:elevation="18dp"
+        android:paddingStart="22dp"
         android:paddingTop="10dp"
-        android:paddingEnd="20dp"
+        android:paddingEnd="22dp"
         android:paddingBottom="10dp"
         android:textColor="#FFFFFF"
         android:textSize="16sp" />
@@ -76,16 +171,17 @@
     <LinearLayout
         android:id="@+id/dock"
         android:layout_width="wrap_content"
-        android:layout_height="68dp"
+        android:layout_height="64dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="18dp"
+        android:animateLayoutChanges="true"
         android:background="@drawable/bg_glass_pill"
         android:clickable="true"
         android:elevation="14dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
 
         <ImageButton
             android:id="@+id/btn_back"
@@ -100,10 +196,22 @@
             android:src="@drawable/ic_home" />
 
         <ImageButton
+            android:id="@+id/btn_related"
+            style="@style/GlassIcon"
+            android:contentDescription="Relacionados"
+            android:src="@drawable/ic_related" />
+
+        <ImageButton
             android:id="@+id/btn_lyrics"
             style="@style/GlassIcon"
             android:contentDescription="Letra"
             android:src="@drawable/ic_lyrics" />
+
+        <ImageButton
+            android:id="@+id/btn_clock"
+            style="@style/GlassIcon"
+            android:contentDescription="Modo ambiente"
+            android:src="@drawable/ic_clock" />
 
         <!-- Música (Spotify, YouTube Music…) -->
         <LinearLayout
@@ -116,15 +224,15 @@
 
             <View
                 android:layout_width="1dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="6dp"
+                android:layout_height="26dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginEnd="12dp"
-                android:background="#33FFFFFF" />
+                android:background="#26FFFFFF" />
 
             <ImageView
                 android:id="@+id/m_art"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:background="@drawable/bg_art"
                 android:clipToOutline="true"
                 android:scaleType="centerCrop" />
@@ -141,21 +249,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxWidth="240dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:maxWidth="220dp"
                     android:singleLine="true"
                     android:textColor="#FFFFFF"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/m_artist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
-                    android:maxWidth="240dp"
+                    android:maxWidth="220dp"
                     android:singleLine="true"
-                    android:textColor="#A6FFFFFF"
-                    android:textSize="13sp" />
+                    android:textColor="#99FFFFFF"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <ImageButton
@@ -177,5 +285,4 @@
                 android:src="@drawable/ic_skip_next" />
         </LinearLayout>
     </LinearLayout>
-
 </FrameLayout>

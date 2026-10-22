@@ -32,16 +32,6 @@ class BrowserScreen(carContext: CarContext) : Screen(carContext), DefaultLifecyc
     private var moving = false
     private var speedListener: OnCarDataAvailableListener<Speed>? = null
 
-    // Mientras el auto se mueve, se asegura cada 2 s de que nada se reproduzca
-    // (por ejemplo, el siguiente video en autoplay).
-    private val keepPaused = object : Runnable {
-        override fun run() {
-            if (!moving) return
-            CarBrowser.pauseMedia()
-            handler.postDelayed(this, 2000)
-        }
-    }
-
     init {
         lifecycle.addObserver(this)
     }
@@ -96,16 +86,11 @@ class BrowserScreen(carContext: CarContext) : Screen(carContext), DefaultLifecyc
         speedListener = null
     }
 
+    // En movimiento: modo audio. La imagen se tapa y el sonido sigue.
     private fun onMovingChanged(nowMoving: Boolean) {
         if (nowMoving == moving) return
         moving = nowMoving
         renderer.setMoving(moving)
-        handler.removeCallbacks(keepPaused)
-        if (moving) {
-            handler.post(keepPaused)
-        } else {
-            CarBrowser.resumeMedia()
-        }
     }
 
     private companion object {

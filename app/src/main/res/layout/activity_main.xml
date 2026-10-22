@@ -9,10 +9,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
         android:orientation="vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="28dp">
 
         <!-- Encabezado -->
         <LinearLayout
@@ -21,7 +22,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="8dp"
-            android:paddingTop="20dp"
+            android:paddingTop="22dp"
             android:paddingBottom="16dp">
 
             <LinearLayout
@@ -33,51 +34,158 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-light"
                     android:text="Lumo"
                     android:textColor="@color/text"
-                    android:textSize="32sp"
-                    android:textStyle="bold" />
+                    android:textSize="34sp" />
 
                 <TextView
+                    android:id="@+id/status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Video a pantalla completa en tu auto"
                     android:textColor="@color/text_dim"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/btn_help"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:background="@drawable/bg_circle_card"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/bg_glass_card"
                 android:gravity="center"
                 android:text="\?"
                 android:textColor="@color/text"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <!-- Control remoto -->
+        <LinearLayout
+            android:id="@+id/remote_card"
+            style="@style/GlassCard">
+
+            <TextView
+                style="@style/CardLabel"
+                android:text="CONTROL REMOTO" />
+
+            <TextView
+                android:id="@+id/r_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-light"
+                android:maxLines="2"
+                android:textColor="@color/text"
+                android:textSize="19sp" />
+
+            <ProgressBar
+                android:id="@+id/r_progress"
+                style="@android:style/Widget.Material.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:layout_marginTop="14dp"
+                android:max="1000"
+                android:progressBackgroundTint="#26FFFFFF" />
+
+            <TextView
+                android:id="@+id/r_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFeatureSettings="tnum"
+                android:textColor="@color/text_dim"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/r_back10"
+                    style="@style/PhoneIcon"
+                    android:contentDescription="Regresar 10 s"
+                    android:src="@drawable/ic_rewind10" />
+
+                <ImageButton
+                    android:id="@+id/r_play"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginEnd="18dp"
+                    android:background="@drawable/bg_circle_solid"
+                    android:contentDescription="Reproducir o pausar"
+                    android:padding="19dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_play"
+                    android:tint="#000000" />
+
+                <ImageButton
+                    android:id="@+id/r_fwd10"
+                    style="@style/PhoneIcon"
+                    android:contentDescription="Adelantar 10 s"
+                    android:src="@drawable/ic_forward10" />
+
+                <ImageButton
+                    android:id="@+id/r_next"
+                    style="@style/PhoneIcon"
+                    android:layout_marginStart="10dp"
+                    android:contentDescription="Siguiente video"
+                    android:src="@drawable/ic_skip_next" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/r_related"
+                    style="@style/PhoneIcon"
+                    android:contentDescription="Relacionados en el auto"
+                    android:src="@drawable/ic_related" />
+
+                <ImageButton
+                    android:id="@+id/r_lyrics"
+                    style="@style/PhoneIcon"
+                    android:contentDescription="Letra"
+                    android:src="@drawable/ic_lyrics" />
+
+                <ImageButton
+                    android:id="@+id/r_clock"
+                    style="@style/PhoneIcon"
+                    android:contentDescription="Modo ambiente"
+                    android:src="@drawable/ic_clock" />
+
+                <ImageButton
+                    android:id="@+id/r_vol_down"
+                    style="@style/PhoneIcon"
+                    android:contentDescription="Bajar volumen"
+                    android:src="@drawable/ic_vol_down" />
+
+                <ImageButton
+                    android:id="@+id/r_vol_up"
+                    style="@style/PhoneIcon"
+                    android:contentDescription="Subir volumen"
+                    android:src="@drawable/ic_vol_up" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Enviar enlace -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_glass_card"
-            android:orientation="vertical"
-            android:padding="18dp">
+        <LinearLayout style="@style/GlassCard">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mandar a la pantalla del auto"
-                android:textColor="@color/text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                style="@style/CardLabel"
+                android:text="MANDAR AL AUTO" />
 
             <EditText
                 android:id="@+id/input"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="50dp"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_input"
                 android:hint="Busca en YouTube o pega un enlace"
@@ -98,146 +206,219 @@
 
                 <TextView
                     android:id="@+id/btn_send"
+                    style="@style/PillButton"
                     android:layout_width="0dp"
-                    android:layout_height="46dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_pill"
-                    android:gravity="center"
-                    android:text="Enviar al auto"
-                    android:textColor="#000000"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:text="Enviar" />
 
                 <TextView
                     android:id="@+id/btn_home"
-                    android:layout_width="wrap_content"
-                    android:layout_height="46dp"
+                    style="@style/GhostButton"
                     android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_pill_ghost"
-                    android:gravity="center"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="18dp"
-                    android:text="Inicio YouTube"
-                    android:textColor="@color/text"
-                    android:textSize="15sp" />
+                    android:text="YouTube" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/current"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:ellipsize="middle"
                 android:singleLine="true"
                 android:textColor="@color/text_dim"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Tip compartir -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_glass_card"
-            android:lineSpacingExtra="3dp"
-            android:padding="18dp"
-            android:text="Más rápido: en la app de YouTube toca Compartir → Lumo y el video se abre en el auto."
-            android:textColor="@color/text_dim"
-            android:textSize="14sp" />
+        <!-- Datos -->
+        <LinearLayout style="@style/GlassCard">
 
-        <!-- Música -->
+            <TextView
+                style="@style/CardLabel"
+                android:text="DATOS MÓVILES" />
+
+            <TextView
+                android:id="@+id/d_used"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="sans-serif-light"
+                android:textColor="@color/text"
+                android:textSize="26sp" />
+
+            <ProgressBar
+                android:id="@+id/d_bar"
+                style="@android:style/Widget.Material.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="10dp"
+                android:max="1000"
+                android:progressBackgroundTint="#26FFFFFF" />
+
+            <TextView
+                android:id="@+id/d_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/text_dim"
+                android:textSize="13sp" />
+
+            <TextView
+                style="@style/SubLabel"
+                android:text="Calidad" />
+
+            <LinearLayout
+                android:id="@+id/d_modes"
+                style="@style/ChipRow" />
+
+            <TextView
+                style="@style/SubLabel"
+                android:text="Horas de uso al día" />
+
+            <LinearLayout
+                android:id="@+id/d_hours"
+                style="@style/ChipRow" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/d_gb"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_input"
+                    android:hint="GB para Lumo"
+                    android:inputType="numberDecimal"
+                    android:paddingStart="14dp"
+                    android:textColor="@color/text"
+                    android:textColorHint="@color/text_dim"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/d_cut"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_input"
+                    android:hint="Día de corte"
+                    android:inputType="number"
+                    android:paddingStart="14dp"
+                    android:textColor="@color/text"
+                    android:textColorHint="@color/text_dim"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/d_save"
+                    style="@style/GhostButton"
+                    android:layout_marginStart="10dp"
+                    android:text="Guardar" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Tema -->
+        <LinearLayout style="@style/GlassCard">
+
+            <TextView
+                style="@style/CardLabel"
+                android:text="TEMA" />
+
+            <LinearLayout
+                android:id="@+id/themes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="horizontal" />
+        </LinearLayout>
+
+        <!-- Mi servidor -->
+        <LinearLayout style="@style/GlassCard">
+
+            <TextView
+                style="@style/CardLabel"
+                android:text="MI SERVIDOR (JELLYFIN / PLEX)" />
+
+            <EditText
+                android:id="@+id/server_url"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input"
+                android:hint="http://100.x.x.x:8096"
+                android:inputType="textUri"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:singleLine="true"
+                android:textColor="@color/text"
+                android:textColorHint="@color/text_dim"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/btn_server"
+                style="@style/PillButton"
+                android:layout_width="match_parent"
+                android:layout_marginTop="12dp"
+                android:text="Abrir en el auto" />
+        </LinearLayout>
+
+        <!-- Spotify -->
         <LinearLayout
             android:id="@+id/music_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_glass_card"
-            android:orientation="vertical"
-            android:padding="18dp">
+            style="@style/GlassCard">
+
+            <TextView
+                style="@style/CardLabel"
+                android:text="SPOTIFY EN EL DOCK" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Spotify en el dock del auto"
-                android:textColor="@color/text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/music_desc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:text="Muestra la canción que suena con controles. Android lo llama «acceso a notificaciones»; Lumo no las lee."
                 android:textColor="@color/text_dim"
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/btn_music"
-                android:layout_width="wrap_content"
-                android:layout_height="44dp"
+                style="@style/PillButton"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_pill"
-                android:gravity="center"
-                android:paddingStart="22dp"
-                android:paddingEnd="22dp"
-                android:text="Activar"
-                android:textColor="#000000"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="Activar" />
         </LinearLayout>
 
-        <!-- Permiso de velocidad -->
+        <!-- Velocidad -->
         <LinearLayout
             android:id="@+id/speed_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_glass_card"
-            android:orientation="vertical"
-            android:padding="18dp">
+            style="@style/GlassCard">
+
+            <TextView
+                style="@style/CardLabel"
+                android:text="MODO AUDIO AL MANEJAR" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pausa automática en movimiento"
-                android:textColor="@color/text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Permite leer la velocidad del auto para pausar el video al avanzar."
+                android:layout_marginTop="6dp"
+                android:text="Permite leer la velocidad del auto: al avanzar se oculta la imagen y el audio sigue."
                 android:textColor="@color/text_dim"
                 android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/btn_speed"
-                android:layout_width="wrap_content"
-                android:layout_height="44dp"
+                style="@style/PillButton"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_pill"
-                android:gravity="center"
-                android:paddingStart="22dp"
-                android:paddingEnd="22dp"
-                android:text="Permitir"
-                android:textColor="#000000"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="Permitir" />
         </LinearLayout>
 
-        <!-- Instrucciones -->
+        <!-- Ayuda -->
         <TextView
             android:id="@+id/help_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_glass_card"
+            style="@style/GlassCard"
             android:lineSpacingExtra="4dp"
-            android:padding="18dp"
-            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes del teléfono → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → activa «Fuentes desconocidas».\n4. Conecta el auto y abre Lumo desde el menú de apps (si no aparece, en «Personalizar menú»).\n\nEn el auto: toca para usar la página y desliza para hacer scroll. Abajo aparece el dock de vidrio (atrás, inicio, letra y tu música); se esconde solo y vuelve al tocar. La lupa de arriba abre el teclado para buscar. En YouTube usa el botón de pantalla completa del video para verlo solo, sin nada más.\n\nNetflix, Disney+, Prime y similares no se pueden mostrar: su protección anticopia deja la pantalla en negro."
+            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → «Fuentes desconocidas».\n4. Conecta el auto y abre Lumo desde el menú de apps.\n\nEn el auto: toca para usar la página y desliza para hacer scroll. El dock de vidrio (atrás, inicio, relacionados, letra, reloj y tu música) se esconde solo y vuelve al tocar. La lupa de arriba abre el teclado.\n\nNetflix, Disney+ y Prime no se pueden mostrar (su protección deja la pantalla en negro)."
             android:textColor="@color/text_dim"
             android:textSize="14sp"
             android:visibility="gone" />

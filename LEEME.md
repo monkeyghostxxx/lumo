@@ -1,13 +1,16 @@
 # Lumo — videos en Android Auto
 
-Pantalla única y limpia en Android Auto para ver YouTube (y sitios de video sin DRM) en el auto.
+Pantalla única y limpia en Android Auto para ver YouTube (y sitios de video sin DRM) en el auto, con interfaz de vidrio.
 
-- La página ocupa toda la pantalla; con el botón de pantalla completa de YouTube solo queda el video.
-- Toca para usar la página, desliza para hacer scroll. Barra mínima: ← atrás, buscar (teclado del auto), inicio.
-- Desde el teléfono: en YouTube toca **Compartir → Lumo**, o pega un enlace en la app.
-- Si cambias a Maps y regresas, el video sigue donde estaba.
-- Se pausa sola si el auto se mueve (cuando Android Auto reporta la velocidad) y sigue al detenerte.
-- Netflix, Disney+, Prime, Max, etc. **no** funcionan: su DRM deja la pantalla en negro.
+- **Dock de vidrio** (se oculta solo): atrás, inicio, relacionados, letra, reloj y tu música (Spotify).
+- **Relacionados**: carrusel con miniaturas de lo que YouTube sugiere; aparece solo al terminar un video.
+- **Modo ambiente**: reloj con dígitos que ruedan; aparece solo tras 2 min sin reproducir.
+- **Control remoto** desde el teléfono: play/pausa, ±10 s, siguiente, volumen, relacionados, letra y reloj.
+- **Presupuesto de datos**: escoge la calidad (360p–1080p) para que tus GB alcancen hasta el corte.
+- **Temas**: Lima, Hielo, Violeta, Coral, Neutro.
+- **Mi servidor**: abre tu Jellyfin/Plex en el auto.
+- **Modo audio al manejar**: la imagen se oculta y el sonido sigue; vuelve al detenerte.
+- Netflix, Disney+, Prime, Max **no** funcionan (DRM).
 
 ## 1. Obtener el APK (sin instalar nada)
 
