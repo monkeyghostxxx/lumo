@@ -2,7 +2,6 @@ package mx.lumo.auto.car
 
 import android.app.Presentation
 import android.content.Context
-import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,99 +10,85 @@ import android.view.Display
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageButton
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.media3.common.C
-import androidx.media3.common.Player
-import androidx.media3.ui.PlayerView
-import mx.lumo.auto.PlayerHolder
 import mx.lumo.auto.R
+import kotlin.math.abs
 
-/** La interfaz que se ve en la pantalla del auto. */
+/** Lo que se ve en la pantalla del auto: una sola vista, de orilla a orilla. */
 class CarPresentation(
     context: Context,
     display: Display,
     private val surfaceWidth: Int,
     private val surfaceHeight: Int
-) : Presentation(context, display, R.style.Theme_Lumo_Car) {
+) : Presentation(context, display, R.style.Theme_Lumo_Car), CarBrowser.Host {
 
-    private lateinit var playerView: PlayerView
-    private lateinit var safeArea: View
-    private lateinit var controls: View
-    private lateinit var emptyText: View
-    private lateinit var movingOverlay: View
-    private lateinit var title: TextView
-    private lateinit var time: TextView
+    private lateinit var webContainer: FrameLayout
+    private lateinit var fullscreenContainer: FrameLayout
     private lateinit var progress: ProgressBar
-    private lateinit var btnPlay: ImageButton
+    private lateinit var movingOverlay: View
 
     private var ready = false
-    private var pendingArea: Rect? = null
     private var pendingMoving = false
-    private var controlsShown = true
-
     private val handler = Handler(Looper.getMainLooper())
-    private val player get() = PlayerHolder.get(context)
-
-    private val listener = object : Player.Listener {
-        override fun onEvents(player: Player, events: Player.Events) = refresh()
-    }
-    private val ticker = object : Runnable {
-        override fun run() {
-            refreshProgress()
-            handler.postDelayed(this, 500)
-        }
-    }
-    private val autoHide = Runnable { if (player.isPlaying) showControls(false) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.car_player)
-
-        playerView = findViewById(R.id.player_view)
-        safeArea = findViewById(R.id.safe_area)
-        controls = findViewById(R.id.controls)
-        emptyText = findViewById(R.id.empty)
-        movingOverlay = findViewById(R.id.moving_overlay)
-        title = findViewById(R.id.title)
-        time = findViewById(R.id.time)
+        setContentView(R.layout.car_browser)
+        webContainer = findViewById(R.id.web_container)
+        fullscreenContainer = findViewById(R.id.fullscreen_container)
         progress = findViewById(R.id.progress)
-        btnPlay = findViewById(R.id.btn_play)
+        movingOverlay = findViewById(R.id.moving_overlay)
 
-        findViewById<View>(R.id.root).setOnClickListener { showControls(!controlsShown) }
-        btnPlay.setOnClickListener { PlayerHolder.toggle(context); bump() }
-        findViewById<View>(R.id.btn_back).setOnClickListener { PlayerHolder.back(context); bump() }
-        findViewById<View>(R.id.btn_fwd).setOnClickListener { PlayerHolder.forward(context); bump() }
-
-        playerView.player = player
-        player.addListener(listener)
+        val web = CarBrowser.attach(context, this)
+        webContainer.addView(
+            web,
+            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        )
         ready = true
-
-        pendingArea?.let { applyVisibleArea(it) }
         setMoving(pendingMoving)
-        refresh()
-        handler.post(ticker)
-        bump()
     }
 
     override fun onStop() {
         handler.removeCallbacksAndMessages(null)
         if (ready) {
-            player.removeListener(listener)
-            playerView.player = null
+            CarBrowser.detach()
+            fullscreenContainer.removeAllViews()
         }
         super.onStop()
     }
 
-    fun applyVisibleArea(area: Rect) {
-        if (!ready) { pendingArea = area; return }
-        safeArea.setPadding(
-            area.left.coerceAtLeast(0),
-            area.top.coerceAtLeast(0),
-            (surfaceWidth - area.right).coerceAtLeast(0),
-            (surfaceHeight - area.bottom).coerceAtLeast(0)
+    // --- CarBrowser.Host ---
+
+    override fun showFullscreen(view: View) {
+        if (!ready) return
+        (view.parent as? ViewGroup)?.removeView(view)
+        fullscreenContainer.removeAllViews()
+        fullscreenContainer.addView(
+            view,
+            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         )
+        fullscreenContainer.visibility = View.VISIBLE
+        webContainer.visibility = View.INVISIBLE
+    }
+
+    override fun hideFullscreen() {
+        if (!ready) return
+        fullscreenContainer.removeAllViews()
+        fullscreenContainer.visibility = View.GONE
+        webContainer.visibility = View.VISIBLE
+    }
+
+    override fun setProgress(percent: Int) {
+        if (!ready) return
+        progress.progress = percent
+        progress.animate().cancel()
+        if (percent >= 100) {
+            progress.animate().alpha(0f).setDuration(250).start()
+        } else {
+            progress.alpha = 1f
+        }
     }
 
     fun setMoving(moving: Boolean) {
@@ -111,74 +96,76 @@ class CarPresentation(
         movingOverlay.visibility = if (moving) View.VISIBLE else View.GONE
     }
 
-    /** Reenvía un toque del auto a nuestras vistas. */
+    // --- Entrada táctil del auto ---
+
     fun tap(x: Float, y: Float) {
-        val root = window?.decorView ?: return
+        finishDrag()
         val now = SystemClock.uptimeMillis()
-        val down = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, x, y, 0)
-        val up = MotionEvent.obtain(now, now + 40, MotionEvent.ACTION_UP, x, y, 0)
-        down.source = InputDevice.SOURCE_TOUCHSCREEN
-        up.source = InputDevice.SOURCE_TOUCHSCREEN
-        root.dispatchTouchEvent(down)
-        root.dispatchTouchEvent(up)
-        down.recycle()
-        up.recycle()
+        send(MotionEvent.ACTION_DOWN, now, now, x, y)
+        send(MotionEvent.ACTION_UP, now, now + 40, x, y)
     }
 
-    fun scrub(distanceX: Float) {
-        if (!ready || player.mediaItemCount == 0) return
-        PlayerHolder.seekBy(context, (-distanceX * 60).toLong())
-        bump()
-    }
+    /*
+     * Android Auto manda el desplazamiento en pedacitos. Los convertimos en un
+     * arrastre real (dedo abajo → mover → dedo arriba) para que cualquier página
+     * haga scroll de forma natural. Solo se empieza cuando el movimiento es claro,
+     * así un roce mínimo nunca se convierte en un toque accidental.
+     */
+    private var dragging = false
+    private var dragDown = 0L
+    private var pendingDx = 0f
+    private var pendingDy = 0f
+    private var curX = 0f
+    private var curY = 0f
+    private val endDrag = Runnable { finishDrag() }
+    private val resetPending = Runnable { pendingDx = 0f; pendingDy = 0f }
 
-    // --- UI ---
-
-    private fun bump() {
-        showControls(true)
-        handler.removeCallbacks(autoHide)
-        handler.postDelayed(autoHide, 3500)
-    }
-
-    private fun showControls(show: Boolean) {
-        if (!ready) return
-        controlsShown = show
-        controls.animate().cancel()
-        if (show) {
-            controls.visibility = View.VISIBLE
-            controls.animate().alpha(1f).setDuration(180).start()
-            handler.removeCallbacks(autoHide)
-            handler.postDelayed(autoHide, 3500)
+    fun scroll(distanceX: Float, distanceY: Float) {
+        handler.removeCallbacks(endDrag)
+        handler.removeCallbacks(resetPending)
+        if (!dragging) {
+            pendingDx += distanceX
+            pendingDy += distanceY
+            if (abs(pendingDx) < START_PX && abs(pendingDy) < START_PX) {
+                handler.postDelayed(resetPending, END_MS)
+                return
+            }
+            dragging = true
+            dragDown = SystemClock.uptimeMillis()
+            curX = surfaceWidth / 2f
+            curY = surfaceHeight / 2f
+            send(MotionEvent.ACTION_DOWN, dragDown, dragDown, curX, curY)
+            curX -= pendingDx
+            curY -= pendingDy
+            pendingDx = 0f
+            pendingDy = 0f
         } else {
-            controls.animate().alpha(0f).setDuration(220)
-                .withEndAction { if (!controlsShown) controls.visibility = View.INVISIBLE }
-                .start()
+            curX -= distanceX
+            curY -= distanceY
         }
+        send(MotionEvent.ACTION_MOVE, dragDown, SystemClock.uptimeMillis(), curX, curY)
+        handler.postDelayed(endDrag, END_MS)
     }
 
-    private fun refresh() {
-        if (!ready) return
-        val p = player
-        val hasMedia = p.mediaItemCount > 0
-        emptyText.visibility = if (hasMedia) View.GONE else View.VISIBLE
-        title.text = p.currentMediaItem?.mediaMetadata?.title ?: ""
-        btnPlay.setImageResource(
-            if (PlayerHolder.isActuallyPlaying(context)) R.drawable.ic_pause else R.drawable.ic_play
-        )
-        if (!p.isPlaying) showControls(true)
-        refreshProgress()
+    private fun finishDrag() {
+        handler.removeCallbacks(endDrag)
+        pendingDx = 0f
+        pendingDy = 0f
+        if (!dragging) return
+        dragging = false
+        send(MotionEvent.ACTION_UP, dragDown, SystemClock.uptimeMillis(), curX, curY)
     }
 
-    private fun refreshProgress() {
-        if (!ready) return
-        val p = player
-        val duration = p.duration
-        val position = p.currentPosition
-        if (duration == C.TIME_UNSET || duration <= 0) {
-            progress.progress = 0
-            time.text = ""
-            return
-        }
-        progress.progress = ((position * 1000) / duration).toInt()
-        time.text = "${PlayerHolder.formatTime(position)} / ${PlayerHolder.formatTime(duration)}"
+    private fun send(action: Int, downTime: Long, time: Long, x: Float, y: Float) {
+        val root = window?.decorView ?: return
+        val e = MotionEvent.obtain(downTime, time, action, x, y, 0)
+        e.source = InputDevice.SOURCE_TOUCHSCREEN
+        root.dispatchTouchEvent(e)
+        e.recycle()
+    }
+
+    private companion object {
+        const val START_PX = 24f
+        const val END_MS = 120L
     }
 }

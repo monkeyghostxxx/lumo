@@ -1,140 +1,81 @@
 package mx.lumo.auto
 
 import android.app.Activity
-import android.content.Intent
-import android.net.Uri
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.view.View
-import android.widget.ImageButton
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.TextView
-import androidx.media3.common.Player
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
+import mx.lumo.auto.car.CarBrowser
 
 class MainActivity : Activity() {
 
-    private lateinit var adapter: VideoAdapter
-    private lateinit var permissionCard: View
+    private lateinit var input: EditText
+    private lateinit var current: TextView
+    private lateinit var speedCard: View
     private lateinit var helpCard: View
-    private lateinit var emptyText: TextView
-    private lateinit var nowPlaying: View
-    private lateinit var npTitle: TextView
-    private lateinit var npTime: TextView
-    private lateinit var npButton: ImageButton
-
-    private val listener = object : Player.Listener {
-        override fun onEvents(player: Player, events: Player.Events) = updateNowPlaying()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        permissionCard = findViewById(R.id.permission_card)
+        input = findViewById(R.id.input)
+        current = findViewById(R.id.current)
+        speedCard = findViewById(R.id.speed_card)
         helpCard = findViewById(R.id.help_card)
-        emptyText = findViewById(R.id.empty)
-        nowPlaying = findViewById(R.id.now_playing)
-        npTitle = findViewById(R.id.np_title)
-        npTime = findViewById(R.id.np_subtitle)
-        npButton = findViewById(R.id.np_button)
 
-        adapter = VideoAdapter { list, index -> PlayerHolder.play(this, list, index) }
-        findViewById<RecyclerView>(R.id.video_list).apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = this@MainActivity.adapter
-            setHasFixedSize(true)
+        findViewById<View>(R.id.btn_send).setOnClickListener { send() }
+        input.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_GO) { send(); true } else false
         }
-
-        findViewById<View>(R.id.btn_permission).setOnClickListener { requestAccess() }
-        findViewById<View>(R.id.btn_open).setOnClickListener { openFile() }
+        findViewById<View>(R.id.btn_home).setOnClickListener {
+            CarBrowser.home(this)
+            confirm()
+        }
+        findViewById<View>(R.id.btn_speed).setOnClickListener {
+            requestPermissions(arrayOf(SPEED_PERMISSION), REQ_SPEED)
+        }
         findViewById<View>(R.id.btn_help).setOnClickListener {
             helpCard.visibility = if (helpCard.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
-        npButton.setOnClickListener { PlayerHolder.toggle(this) }
     }
 
-    override fun onStart() {
-        super.onStart()
-        PlayerHolder.get(this).addListener(listener)
-        updateNowPlaying()
-        loadVideos()
-    }
-
-    override fun onStop() {
-        PlayerHolder.get(this).removeListener(listener)
-        super.onStop()
-    }
-
-    private fun requestAccess() {
-        val perms = VideoRepository.permissions() + "com.google.android.gms.permission.CAR_SPEED"
-        requestPermissions(perms, REQ_PERMS)
+    override fun onResume() {
+        super.onResume()
+        refresh()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQ_PERMS) loadVideos()
+        refresh()
     }
 
-    private fun loadVideos() {
-        val granted = VideoRepository.hasPermission(this)
-        permissionCard.visibility = if (granted) View.GONE else View.VISIBLE
-        if (!granted) {
-            adapter.submit(emptyList())
-            emptyText.visibility = View.GONE
-            return
-        }
-        VideoRepository.loadAsync(this) { list ->
-            adapter.submit(list)
-            emptyText.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
-        }
+    private fun send() {
+        val text = input.text.toString().trim()
+        if (text.isEmpty()) return
+        val url = ShareActivity.extractUrl(text)
+        if (url != null && !text.contains(' ')) CarBrowser.open(this, url) else CarBrowser.search(this, text)
+        input.setText("")
+        getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(input.windowToken, 0)
+        confirm()
     }
 
-    @Suppress("DEPRECATION")
-    private fun openFile() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            .addCategory(Intent.CATEGORY_OPENABLE)
-            .setType("video/*")
-        startActivityForResult(intent, REQ_OPEN)
+    private fun confirm() {
+        Toast.makeText(this, "Enviado a la pantalla del auto", Toast.LENGTH_SHORT).show()
+        refresh()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != REQ_OPEN || resultCode != RESULT_OK) return
-        val uri = data?.data ?: return
-        runCatching {
-            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        PlayerHolder.play(this, listOf(VideoItem(uri, displayName(uri), 0L)), 0)
-    }
-
-    private fun displayName(uri: Uri): String {
-        runCatching {
-            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
-                if (c.moveToFirst()) return c.getString(0).substringBeforeLast('.')
-            }
-        }
-        return "Video"
-    }
-
-    private fun updateNowPlaying() {
-        val p = PlayerHolder.get(this)
-        val item = p.currentMediaItem
-        if (item == null) {
-            nowPlaying.visibility = View.GONE
-            return
-        }
-        nowPlaying.visibility = View.VISIBLE
-        npTitle.text = item.mediaMetadata.title ?: "Video"
-        npTime.text = if (PlayerHolder.isActuallyPlaying(this)) "Reproduciendo en el auto" else "En pausa"
-        npButton.setImageResource(
-            if (PlayerHolder.isActuallyPlaying(this)) R.drawable.ic_pause else R.drawable.ic_play
-        )
+    private fun refresh() {
+        current.text = "En el auto: " + CarBrowser.lastUrl(this)
+        val granted = checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED
+        speedCard.visibility = if (granted) View.GONE else View.VISIBLE
     }
 
     private companion object {
-        const val REQ_PERMS = 1
-        const val REQ_OPEN = 2
+        const val SPEED_PERMISSION = "com.google.android.gms.permission.CAR_SPEED"
+        const val REQ_SPEED = 1
     }
 }

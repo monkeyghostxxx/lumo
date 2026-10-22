@@ -11,6 +11,6 @@ class LumoCarAppService : CarAppService() {
     override fun createHostValidator(): HostValidator = HostValidator.ALLOW_ALL_HOSTS_VALIDATOR
 
     override fun onCreateSession(): Session = object : Session() {
-        override fun onCreateScreen(intent: Intent): Screen = PlayerScreen(carContext)
+        override fun onCreateScreen(intent: Intent): Screen = BrowserScreen(carContext)
     }
 }

@@ -1,199 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    android:fillViewport="true"
+    android:fitsSystemWindows="true">
 
-    <!-- Encabezado -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="24dp"
-        android:paddingTop="20dp"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="8dp">
+        android:paddingBottom="24dp">
 
+        <!-- Encabezado -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lumo"
+                    android:textColor="@color/text"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Video a pantalla completa en tu auto"
+                    android:textColor="@color/text_dim"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Lumo"
+                android:id="@+id/btn_help"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_circle_card"
+                android:gravity="center"
+                android:text="\?"
                 android:textColor="@color/text"
-                android:textSize="32sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tus videos en la pantalla del auto"
-                android:textColor="@color/text_dim"
-                android:textSize="14sp" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btn_open"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/bg_circle_card"
-            android:contentDescription="Abrir archivo"
-            android:padding="11dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_folder"
-            android:tint="@color/text" />
-
-        <TextView
-            android:id="@+id/btn_help"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/bg_circle_card"
-            android:gravity="center"
-            android:text="\?"
-            android:textColor="@color/text"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <!-- Instrucciones -->
-    <TextView
-        android:id="@+id/help_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_card"
-        android:lineSpacingExtra="4dp"
-        android:padding="18dp"
-        android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes del teléfono → Android Auto.\n2. Toca 10 veces «Versión» hasta activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → activa «Fuentes desconocidas».\n4. Conecta el auto. En el menú de apps de Android Auto aparece Lumo (si no, en «Personalizar menú»).\n\nElige un video aquí o desde la pantalla del auto con ☰. Toca la pantalla del auto para ver los controles; desliza para adelantar o regresar."
-        android:textColor="@color/text_dim"
-        android:textSize="14sp"
-        android:visibility="gone" />
-
-    <!-- Permiso -->
-    <LinearLayout
-        android:id="@+id/permission_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_card"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Permite el acceso a tus videos"
-            android:textColor="@color/text"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Lumo solo los lee para mostrarlos en el auto."
-            android:textColor="@color/text_dim"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/btn_permission"
-            android:layout_width="wrap_content"
-            android:layout_height="44dp"
-            android:layout_marginTop="14dp"
-            android:background="@drawable/bg_pill"
-            android:gravity="center"
-            android:paddingStart="22dp"
-            android:paddingEnd="22dp"
-            android:text="Permitir"
-            android:textColor="#000000"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/video_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingTop="8dp"
-            android:paddingBottom="16dp" />
-
-        <TextView
-            android:id="@+id/empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="No hay videos en este teléfono"
-            android:textColor="@color/text_dim"
-            android:visibility="gone" />
-    </FrameLayout>
-
-    <!-- Reproduciendo -->
-    <LinearLayout
-        android:id="@+id/now_playing"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:background="@drawable/bg_card"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="18dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="12dp"
-        android:visibility="gone">
-
+        <!-- Enviar enlace -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
             <TextView
-                android:id="@+id/np_title"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
+                android:text="Mandar a la pantalla del auto"
                 android:textColor="@color/text"
-                android:textSize="15sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/np_subtitle"
+            <EditText
+                android:id="@+id/input"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_input"
+                android:hint="Busca en YouTube o pega un enlace"
+                android:imeOptions="actionGo"
+                android:inputType="textUri"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:singleLine="true"
+                android:textColor="@color/text"
+                android:textColorHint="@color/text_dim"
+                android:textSize="15sp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/accent"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btn_send"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_pill"
+                    android:gravity="center"
+                    android:text="Enviar al auto"
+                    android:textColor="#000000"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btn_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_pill_ghost"
+                    android:gravity="center"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="Inicio YouTube"
+                    android:textColor="@color/text"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/current"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:ellipsize="middle"
+                android:singleLine="true"
+                android:textColor="@color/text_dim"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/np_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_circle_solid"
-            android:contentDescription="Reproducir o pausar"
-            android:padding="13dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_play"
-            android:tint="#000000" />
+        <!-- Tip compartir -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:lineSpacingExtra="3dp"
+            android:padding="18dp"
+            android:text="Más rápido: en la app de YouTube toca Compartir → Lumo y el video se abre en el auto."
+            android:textColor="@color/text_dim"
+            android:textSize="14sp" />
+
+        <!-- Permiso de velocidad -->
+        <LinearLayout
+            android:id="@+id/speed_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pausa automática en movimiento"
+                android:textColor="@color/text"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Permite leer la velocidad del auto para pausar el video al avanzar."
+                android:textColor="@color/text_dim"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btn_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_pill"
+                android:gravity="center"
+                android:paddingStart="22dp"
+                android:paddingEnd="22dp"
+                android:text="Permitir"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Instrucciones -->
+        <TextView
+            android:id="@+id/help_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:lineSpacingExtra="4dp"
+            android:padding="18dp"
+            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes del teléfono → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → activa «Fuentes desconocidas».\n4. Conecta el auto y abre Lumo desde el menú de apps (si no aparece, en «Personalizar menú»).\n\nEn el auto: toca para usar la página, desliza para hacer scroll. Arriba tienes ← atrás, buscar e inicio. En YouTube usa el botón de pantalla completa del video para verlo solo, sin nada más.\n\nNetflix, Disney+, Prime y similares no se pueden mostrar: su protección anticopia deja la pantalla en negro."
+            android:textColor="@color/text_dim"
+            android:textSize="14sp"
+            android:visibility="gone" />
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

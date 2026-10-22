@@ -1,6 +1,5 @@
 package mx.lumo.auto.car
 
-import android.graphics.Rect
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import androidx.car.app.CarContext
@@ -8,14 +7,13 @@ import androidx.car.app.SurfaceCallback
 import androidx.car.app.SurfaceContainer
 
 /**
- * Recibe la superficie de la pantalla del auto, crea una pantalla virtual
- * encima y muestra ahí nuestra propia interfaz (video + controles).
+ * Toma TODA la superficie que Android Auto le da a la app y muestra
+ * nuestra vista encima, sin márgenes ni paneles.
  */
-class CarVideoRenderer(private val context: CarContext) : SurfaceCallback {
+class CarSurfaceRenderer(private val context: CarContext) : SurfaceCallback {
 
     private var virtualDisplay: VirtualDisplay? = null
     private var presentation: CarPresentation? = null
-    private var visibleArea: Rect? = null
     private var moving = false
 
     override fun onSurfaceAvailable(surfaceContainer: SurfaceContainer) {
@@ -41,27 +39,17 @@ class CarVideoRenderer(private val context: CarContext) : SurfaceCallback {
             return
         }
         presentation = p
-        visibleArea?.let { p.applyVisibleArea(it) }
         p.setMoving(moving)
     }
 
-    override fun onVisibleAreaChanged(visibleArea: Rect) {
-        this.visibleArea = visibleArea
-        presentation?.applyVisibleArea(visibleArea)
-    }
-
-    override fun onStableAreaChanged(stableArea: Rect) = Unit
-
     override fun onSurfaceDestroyed(surfaceContainer: SurfaceContainer) = release()
 
-    // Toques en la pantalla del auto (Android Auto con Car API 5+)
     override fun onClick(x: Float, y: Float) {
         presentation?.tap(x, y)
     }
 
-    // Deslizar horizontalmente = adelantar / regresar
     override fun onScroll(distanceX: Float, distanceY: Float) {
-        presentation?.scrub(distanceX)
+        presentation?.scroll(distanceX, distanceY)
     }
 
     fun setMoving(value: Boolean) {

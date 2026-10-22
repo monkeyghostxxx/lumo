@@ -1,11 +1,13 @@
 # Lumo — videos en Android Auto
 
-Reproductor minimalista que muestra los videos de tu teléfono en la pantalla de Android Auto.
+Pantalla única y limpia en Android Auto para ver YouTube (y sitios de video sin DRM) en el auto.
 
-- Lista de videos del teléfono (con miniaturas) o cualquier archivo con el ícono de carpeta.
-- En el auto: video a pantalla completa, controles que aparecen al tocar y se ocultan solos, ±10 s, deslizar para adelantar/regresar, lista ☰ para elegir videos.
-- Botones del volante funcionan (play/pausa).
+- La página ocupa toda la pantalla; con el botón de pantalla completa de YouTube solo queda el video.
+- Toca para usar la página, desliza para hacer scroll. Barra mínima: ← atrás, buscar (teclado del auto), inicio.
+- Desde el teléfono: en YouTube toca **Compartir → Lumo**, o pega un enlace en la app.
+- Si cambias a Maps y regresas, el video sigue donde estaba.
 - Se pausa sola si el auto se mueve (cuando Android Auto reporta la velocidad) y sigue al detenerte.
+- Netflix, Disney+, Prime, Max, etc. **no** funcionan: su DRM deja la pantalla en negro.
 
 ## 1. Obtener el APK (sin instalar nada)
 
