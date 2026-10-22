@@ -146,6 +146,7 @@ class MainActivity : Activity() {
         }
         findViewById<View>(R.id.btn_help).setOnClickListener {
             helpCard.visibility = if (helpCard.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            refresh()
         }
 
         buildThemes()
@@ -327,7 +328,8 @@ class MainActivity : Activity() {
     private fun refresh() {
         current.text = "En el auto: " + CarBrowser.lastUrl(this)
         val granted = checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED
-        speedCard.visibility = if (granted) View.GONE else View.VISIBLE
+        // El permiso de velocidad es opcional: solo aparece dentro de la ayuda (?).
+        speedCard.visibility = if (!granted && helpCard.visibility == View.VISIBLE) View.VISIBLE else View.GONE
         musicCard.visibility = if (NowPlaying.hasAccess(this)) View.GONE else View.VISIBLE
         applyAccent(Accent.color(this))
         showState(CarBrowser.state)
