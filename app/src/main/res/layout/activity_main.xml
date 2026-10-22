@@ -186,7 +186,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Muestra la app oficial de YouTube en el auto, con tu Premium y sin anuncios. Cuando Android pregunte, elige «Una sola app» → YouTube y gira el video a pantalla completa."
+                android:text="Muestra la app oficial de YouTube en el auto, con tu Premium y sin anuncios. Cuando Android pregunte, elige «Una sola app» → YouTube. Al reproducir, el video se amplía solo para llenar la pantalla del auto."
                 android:textColor="@color/text_dim"
                 android:textSize="14sp" />
 

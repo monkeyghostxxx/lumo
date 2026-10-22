@@ -198,6 +198,13 @@
             android:visibility="gone" />
 
         <ImageButton
+            android:id="@+id/btn_zoom"
+            style="@style/GlassIcon"
+            android:contentDescription="Zoom al video"
+            android:src="@drawable/ic_fullscreen"
+            android:visibility="gone" />
+
+        <ImageButton
             android:id="@+id/btn_back"
             style="@style/GlassIcon"
             android:contentDescription="Atrás"

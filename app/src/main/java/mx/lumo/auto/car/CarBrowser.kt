@@ -61,6 +61,10 @@ object CarBrowser {
     private var fullscreenCallback: WebChromeClient.CustomViewCallback? = null
     private var lyricsOn = false
 
+    // Pantalla completa automática al reproducir un video
+    private var cine = false
+    private var cineDismissed = false
+
     val isFullscreen get() = fullscreenCallback != null
     val isOnCarScreen get() = host != null
 
@@ -131,6 +135,10 @@ object CarBrowser {
         val w = webView ?: return
         when {
             isFullscreen -> exitFullscreen()
+            cine -> {
+                cineDismissed = true
+                setCine(false)
+            }
             w.canGoBack() -> w.goBack()
         }
     }
@@ -223,10 +231,19 @@ object CarBrowser {
         ticks++
         w.evaluateJavascript(STATE_JS) { raw ->
             state = parseState(raw)
+            state?.let { s ->
+                if (s.watching && s.playing && !cine && !cineDismissed && !isFullscreen) setCine(true)
+                if (!s.watching && cine) setCine(false)
+            }
             emitState()
             if (state?.watching == true && ticks % 8 == 0) applyQuality()
         }
         if (ticks % 30 == 0) appContext?.let { DataBudget.sample(it) }
+    }
+
+    private fun setCine(on: Boolean) {
+        cine = on
+        js("document.documentElement.classList." + (if (on) "add" else "remove") + "('lumo-cine')")
     }
 
     private fun parseState(raw: String?): State? = runCatching {
@@ -282,6 +299,8 @@ object CarBrowser {
             }
 
             override fun onPageFinished(view: WebView, url: String) {
+                cine = false
+                cineDismissed = false
                 if (url.startsWith("http")) saveLast(view.context, url)
                 view.evaluateJavascript(PAGE_CSS, null)
                 scheduleQuality()
@@ -290,6 +309,7 @@ object CarBrowser {
             // YouTube cambia de video sin recargar la página.
             override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
                 lyricsOn = false
+                cineDismissed = false
                 if (url.startsWith("http")) saveLast(view.context, url)
                 view.evaluateJavascript(PAGE_CSS, null)
                 scheduleQuality()
@@ -349,6 +369,17 @@ object CarBrowser {
             "var s=document.createElement('style');s.id='lumo-css';" +
             "s.textContent='.ytp-caption-segment,.captions-text span{font-size:clamp(22px,3.4vw,44px)!important;" +
             "line-height:1.35!important;background:rgba(0,0,0,.55)!important;color:#fff!important;" +
-            "border-radius:10px!important;padding:2px 10px!important;font-weight:600!important}';" +
+            "border-radius:10px!important;padding:2px 10px!important;font-weight:600!important}'+" +
+            // Modo cine: el reproductor ocupa toda la pantalla del auto
+            "'html.lumo-cine body{overflow:hidden!important}'+" +
+            "'html.lumo-cine #player-container-id,html.lumo-cine .player-container,html.lumo-cine #player," +
+            "html.lumo-cine .player-size,html.lumo-cine .html5-video-player{position:fixed!important;" +
+            "left:0!important;top:0!important;right:0!important;bottom:0!important;width:100vw!important;" +
+            "height:100vh!important;max-height:none!important;margin:0!important;padding:0!important;" +
+            "z-index:2147483646!important;background:#000!important;transform:none!important}'+" +
+            "'html.lumo-cine .html5-video-container{width:100vw!important;height:100vh!important}'+" +
+            "'html.lumo-cine video{position:absolute!important;left:0!important;top:0!important;" +
+            "width:100vw!important;height:100vh!important;object-fit:contain!important}'+" +
+            "'html.lumo-cine ytm-mobile-topbar-renderer,html.lumo-cine header,html.lumo-cine ytm-pivot-bar-renderer{display:none!important}';" +
             "document.documentElement.appendChild(s)})()"
 }

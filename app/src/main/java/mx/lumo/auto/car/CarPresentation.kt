@@ -13,7 +13,11 @@ import android.util.LruCache
 import android.util.TypedValue
 import android.view.Display
 import android.view.Gravity
+import android.animation.ValueAnimator
+import android.graphics.Matrix
+import android.graphics.Point
 import android.graphics.SurfaceTexture
+import android.hardware.display.DisplayManager
 import android.view.InputDevice
 import android.view.Surface
 import android.view.TextureView
@@ -37,6 +41,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.Executors
 import kotlin.math.abs
+import kotlin.math.min
 
 /** Pantalla del auto: página de orilla a orilla + dock de vidrio y capas. */
 class CarPresentation(
@@ -66,6 +71,16 @@ class CarPresentation(
     private lateinit var mirrorView: TextureView
     private var mirrorSurface: Surface? = null
     private var mirroring = false
+    private var autoZoom = true
+    private var zoomed = false
+    private var zoomAnim: ValueAnimator? = null
+    private val zoomTick = object : Runnable {
+        override fun run() {
+            if (!mirroring) return
+            updateZoom()
+            handler.postDelayed(this, 700)
+        }
+    }
 
     private var ready = false
     private var pendingMoving = false
@@ -139,6 +154,11 @@ class CarPresentation(
         click(R.id.m_next) { NowPlaying.next() }
         click(R.id.related_close) { hideRelated() }
         click(R.id.btn_mirror_stop) { Mirror.stop() }
+        click(R.id.btn_zoom) {
+            autoZoom = !autoZoom
+            showToast(if (autoZoom) "Zoom al video: automático" else "Zoom al video: apagado")
+            updateZoom()
+        }
 
         val web = CarBrowser.attach(context, this)
         webContainer.addView(
@@ -257,6 +277,12 @@ class CarPresentation(
             findViewById<View>(it).visibility = if (on) View.GONE else View.VISIBLE
         }
         findViewById<View>(R.id.btn_mirror_stop).visibility = if (on) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.btn_zoom).visibility = if (on) View.VISIBLE else View.GONE
+        zoomAnim?.cancel()
+        zoomed = false
+        mirrorView.setTransform(null)
+        handler.removeCallbacks(zoomTick)
+        if (on) handler.post(zoomTick)
         if (on) {
             CarBrowser.pauseMedia()
             hideRelated()
@@ -274,6 +300,77 @@ class CarPresentation(
             showToast("Espejo detenido")
         }
         poke()
+    }
+
+    /*
+     * Zoom automático: si el teléfono está vertical y YouTube está reproduciendo,
+     * el reproductor ocupa solo la franja de arriba de la pantalla del teléfono.
+     * Ampliamos esa franja para que llene la pantalla del auto. Al pausar
+     * (para buscar otro video) vuelve a verse la app completa.
+     */
+    private fun updateZoom() {
+        val phone = phoneSize()
+        val portrait = phone.y > phone.x
+        val want = autoZoom && portrait && (NowPlaying.youtubePlaying() ?: true)
+        if (want == zoomed) return
+        zoomed = want
+        animateZoom(if (want) videoMatrix(phone) else Matrix())
+    }
+
+    private fun animateZoom(target: Matrix) {
+        zoomAnim?.cancel()
+        val from = FloatArray(9).also { mirrorView.getTransform(Matrix()).getValues(it) }
+        val to = FloatArray(9).also { target.getValues(it) }
+        val now = FloatArray(9)
+        val m = Matrix()
+        zoomAnim = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 520
+            interpolator = android.view.animation.PathInterpolator(0.2f, 0.9f, 0.1f, 1f)
+            addUpdateListener { a ->
+                val f = a.animatedValue as Float
+                for (i in 0 until 9) now[i] = from[i] + (to[i] - from[i]) * f
+                m.setValues(now)
+                mirrorView.setTransform(m)
+            }
+            start()
+        }
+    }
+
+    private fun videoMatrix(phone: Point): Matrix {
+        val pw = phone.x.toFloat()
+        val ph = phone.y.toFloat()
+        val w = surfaceWidth.toFloat()
+        val h = surfaceHeight.toFloat()
+        // Cómo queda el teléfono dentro de la pantalla del auto (centrado y ajustado)
+        val k = min(w / pw, h / ph)
+        val ox = (w - pw * k) / 2f
+        val oy = (h - ph * k) / 2f
+        // Franja del reproductor de YouTube: justo debajo de la barra de estado, 16:9
+        val rx = ox
+        val ry = oy + statusBarPx() * k
+        val rw = pw * k
+        val rh = pw * 9f / 16f * k
+        val s = min(w / rw, h / rh)
+        return Matrix().apply {
+            postTranslate(-rx, -ry)
+            postScale(s, s)
+            postTranslate((w - rw * s) / 2f, (h - rh * s) / 2f)
+        }
+    }
+
+    private fun phoneSize(): Point {
+        val p = Point()
+        val d = context.getSystemService(DisplayManager::class.java)?.getDisplay(Display.DEFAULT_DISPLAY)
+        @Suppress("DEPRECATION")
+        d?.getRealSize(p)
+        if (p.x == 0 || p.y == 0) p.set(1080, 2340)
+        return p
+    }
+
+    private fun statusBarPx(): Int {
+        val res = context.applicationContext.resources
+        val id = res.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id > 0) res.getDimensionPixelSize(id) else 0
     }
 
     private fun connectMirror() {

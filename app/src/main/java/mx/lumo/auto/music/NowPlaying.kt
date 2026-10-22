@@ -18,7 +18,8 @@ object NowPlaying {
         val title: String,
         val artist: String,
         val art: Bitmap?,
-        val playing: Boolean
+        val playing: Boolean,
+        val pkg: String
     )
 
     private val main = Handler(Looper.getMainLooper())
@@ -34,6 +35,13 @@ object NowPlaying {
         override fun onMetadataChanged(metadata: MediaMetadata?) = emit()
         override fun onPlaybackStateChanged(state: PlaybackState?) = emit()
         override fun onSessionDestroyed() = setController(null)
+    }
+
+    /** ¿La app oficial de YouTube está reproduciendo ahora? null = no lo sabemos. */
+    fun youtubePlaying(): Boolean? {
+        if (manager == null) return null
+        val c = controller ?: return false
+        return c.packageName == YOUTUBE && c.playbackState?.state == PlaybackState.STATE_PLAYING
     }
 
     fun hasAccess(context: Context): Boolean =
@@ -118,7 +126,7 @@ object NowPlaying {
             ?: md.getBitmap(MediaMetadata.METADATA_KEY_ART)
             ?: md.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON)
         val playing = c.playbackState?.state == PlaybackState.STATE_PLAYING
-        return Track(title, artist, art, playing)
+        return Track(title, artist, art, playing, c.packageName)
     }
 
     private fun emit() {
@@ -127,4 +135,5 @@ object NowPlaying {
     }
 
     private const val SPOTIFY = "com.spotify.music"
+    private const val YOUTUBE = "com.google.android.youtube"
 }
