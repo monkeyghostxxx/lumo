@@ -95,6 +95,41 @@ object CarBrowser {
             "var v=document.querySelector('video');if(v)v.play()}})()"
     )
 
+    /**
+     * Activa / desactiva los subtítulos del video de YouTube (la letra, cuando el
+     * video la trae). Responde "on", "off", "none" (sin subtítulos) o "novideo".
+     */
+    fun toggleLyrics(result: (String) -> Unit) {
+        val w = webView ?: return result("novideo")
+        w.evaluateJavascript(
+            "(function(){var p=document.getElementById('movie_player');" +
+                "if(!p||!document.querySelector('video'))return 'novideo';" +
+                "try{if(p.toggleSubtitles){p.toggleSubtitles();return 'ok'}}catch(e){}" +
+                "var b=document.querySelector('.ytp-subtitles-button,button[aria-label*=\"ubt\"],button[aria-label*=\"aption\"]');" +
+                "if(b){b.click();return 'ok'}return 'none'})()"
+        ) { raw ->
+            when (raw?.trim('"')) {
+                "ok" -> {
+                    lyricsOn = !lyricsOn
+                    result(if (lyricsOn) "on" else "off")
+                }
+                "novideo" -> result("novideo")
+                else -> result("none")
+            }
+        }
+    }
+
+    private var lyricsOn = false
+
+    // Subtítulos grandes y legibles en la pantalla del auto.
+    private const val CAPTION_CSS =
+        "(function(){if(document.getElementById('lumo-css'))return;" +
+            "var s=document.createElement('style');s.id='lumo-css';" +
+            "s.textContent='.ytp-caption-segment,.captions-text span{font-size:clamp(22px,3.4vw,44px)!important;" +
+            "line-height:1.35!important;background:rgba(0,0,0,.55)!important;color:#fff!important;" +
+            "border-radius:10px!important;padding:2px 10px!important;font-weight:600!important}';" +
+            "document.documentElement.appendChild(s)})()"
+
     private fun js(code: String) {
         webView?.evaluateJavascript(code, null)
     }
@@ -139,6 +174,14 @@ object CarBrowser {
 
             override fun onPageFinished(view: WebView, url: String) {
                 if (url.startsWith("http")) saveLast(view.context, url)
+                view.evaluateJavascript(CAPTION_CSS, null)
+            }
+
+            // YouTube cambia de video sin recargar la página.
+            override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
+                lyricsOn = false
+                if (url.startsWith("http")) saveLast(view.context, url)
+                view.evaluateJavascript(CAPTION_CSS, null)
             }
         }
 

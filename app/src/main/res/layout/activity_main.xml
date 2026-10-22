@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
+    android:background="@android:color/transparent"
     android:fillViewport="true"
     android:fitsSystemWindows="true">
 
@@ -62,7 +62,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_card"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
             android:padding="18dp">
 
@@ -138,12 +138,54 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
+            android:background="@drawable/bg_glass_card"
             android:lineSpacingExtra="3dp"
             android:padding="18dp"
             android:text="Más rápido: en la app de YouTube toca Compartir → Lumo y el video se abre en el auto."
             android:textColor="@color/text_dim"
             android:textSize="14sp" />
+
+        <!-- Música -->
+        <LinearLayout
+            android:id="@+id/music_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_glass_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Spotify en el dock del auto"
+                android:textColor="@color/text"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/music_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Muestra la canción que suena con controles. Android lo llama «acceso a notificaciones»; Lumo no las lee."
+                android:textColor="@color/text_dim"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btn_music"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_pill"
+                android:gravity="center"
+                android:paddingStart="22dp"
+                android:paddingEnd="22dp"
+                android:text="Activar"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <!-- Permiso de velocidad -->
         <LinearLayout
@@ -151,7 +193,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
             android:padding="18dp">
 
@@ -192,10 +234,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
+            android:background="@drawable/bg_glass_card"
             android:lineSpacingExtra="4dp"
             android:padding="18dp"
-            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes del teléfono → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → activa «Fuentes desconocidas».\n4. Conecta el auto y abre Lumo desde el menú de apps (si no aparece, en «Personalizar menú»).\n\nEn el auto: toca para usar la página, desliza para hacer scroll. Arriba tienes ← atrás, buscar e inicio. En YouTube usa el botón de pantalla completa del video para verlo solo, sin nada más.\n\nNetflix, Disney+, Prime y similares no se pueden mostrar: su protección anticopia deja la pantalla en negro."
+            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes del teléfono → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → activa «Fuentes desconocidas».\n4. Conecta el auto y abre Lumo desde el menú de apps (si no aparece, en «Personalizar menú»).\n\nEn el auto: toca para usar la página y desliza para hacer scroll. Abajo aparece el dock de vidrio (atrás, inicio, letra y tu música); se esconde solo y vuelve al tocar. La lupa de arriba abre el teclado para buscar. En YouTube usa el botón de pantalla completa del video para verlo solo, sin nada más.\n\nNetflix, Disney+, Prime y similares no se pueden mostrar: su protección anticopia deja la pantalla en negro."
             android:textColor="@color/text_dim"
             android:textSize="14sp"
             android:visibility="gone" />

@@ -12,11 +12,15 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import mx.lumo.auto.R
+import mx.lumo.auto.music.NowPlaying
 import kotlin.math.abs
 
-/** Lo que se ve en la pantalla del auto: una sola vista, de orilla a orilla. */
+/** Lo que se ve en la pantalla del auto: la página de orilla a orilla + dock de vidrio. */
 class CarPresentation(
     context: Context,
     display: Display,
@@ -28,10 +32,22 @@ class CarPresentation(
     private lateinit var fullscreenContainer: FrameLayout
     private lateinit var progress: ProgressBar
     private lateinit var movingOverlay: View
+    private lateinit var dock: View
+    private lateinit var toast: TextView
+    private lateinit var music: View
+    private lateinit var mArt: ImageView
+    private lateinit var mTitle: TextView
+    private lateinit var mArtist: TextView
+    private lateinit var mPlay: ImageButton
 
     private var ready = false
     private var pendingMoving = false
+    private var dockShown = true
     private val handler = Handler(Looper.getMainLooper())
+
+    private val hideDock = Runnable { setDockVisible(false) }
+    private val hideToast = Runnable { toast.animate().alpha(0f).setDuration(250).start() }
+    private val musicListener: (NowPlaying.Track?) -> Unit = { showTrack(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +56,20 @@ class CarPresentation(
         fullscreenContainer = findViewById(R.id.fullscreen_container)
         progress = findViewById(R.id.progress)
         movingOverlay = findViewById(R.id.moving_overlay)
+        dock = findViewById(R.id.dock)
+        toast = findViewById(R.id.toast)
+        music = findViewById(R.id.music)
+        mArt = findViewById(R.id.m_art)
+        mTitle = findViewById(R.id.m_title)
+        mArtist = findViewById(R.id.m_artist)
+        mPlay = findViewById(R.id.m_play)
+
+        findViewById<View>(R.id.btn_back).setOnClickListener { CarBrowser.back(); poke() }
+        findViewById<View>(R.id.btn_home).setOnClickListener { CarBrowser.home(context); poke() }
+        findViewById<View>(R.id.btn_lyrics).setOnClickListener { toggleLyrics(); poke() }
+        findViewById<View>(R.id.m_prev).setOnClickListener { NowPlaying.previous(); poke() }
+        mPlay.setOnClickListener { NowPlaying.toggle(); poke() }
+        findViewById<View>(R.id.m_next).setOnClickListener { NowPlaying.next(); poke() }
 
         val web = CarBrowser.attach(context, this)
         webContainer.addView(
@@ -47,12 +77,15 @@ class CarPresentation(
             FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         )
         ready = true
+        NowPlaying.start(context, musicListener)
         setMoving(pendingMoving)
+        poke()
     }
 
     override fun onStop() {
         handler.removeCallbacksAndMessages(null)
         if (ready) {
+            NowPlaying.stop(musicListener)
             CarBrowser.detach()
             fullscreenContainer.removeAllViews()
         }
@@ -71,6 +104,8 @@ class CarPresentation(
         )
         fullscreenContainer.visibility = View.VISIBLE
         webContainer.visibility = View.INVISIBLE
+        handler.removeCallbacks(hideDock)
+        handler.postDelayed(hideDock, 1500) // en pantalla completa, solo el video
     }
 
     override fun hideFullscreen() {
@@ -78,38 +113,102 @@ class CarPresentation(
         fullscreenContainer.removeAllViews()
         fullscreenContainer.visibility = View.GONE
         webContainer.visibility = View.VISIBLE
+        poke()
     }
 
     override fun setProgress(percent: Int) {
         if (!ready) return
         progress.progress = percent
         progress.animate().cancel()
-        if (percent >= 100) {
-            progress.animate().alpha(0f).setDuration(250).start()
-        } else {
-            progress.alpha = 1f
-        }
+        if (percent >= 100) progress.animate().alpha(0f).setDuration(250).start()
+        else progress.alpha = 1f
     }
 
     fun setMoving(moving: Boolean) {
         if (!ready) { pendingMoving = moving; return }
+        // Solo se tapa y pausa el video; la música (Spotify) sigue sonando.
         movingOverlay.visibility = if (moving) View.VISIBLE else View.GONE
+    }
+
+    // --- Dock ---
+
+    private fun poke() {
+        setDockVisible(true)
+        handler.removeCallbacks(hideDock)
+        handler.postDelayed(hideDock, if (CarBrowser.isFullscreen) 2500L else 5000L)
+    }
+
+    private fun setDockVisible(show: Boolean) {
+        if (!ready || show == dockShown) return
+        dockShown = show
+        dock.animate().cancel()
+        if (show) {
+            dock.visibility = View.VISIBLE
+            dock.animate().alpha(1f).translationY(0f).scaleX(1f).scaleY(1f)
+                .setDuration(220).start()
+        } else {
+            dock.animate().alpha(0f).translationY(24f).scaleX(0.96f).scaleY(0.96f)
+                .setDuration(260)
+                .withEndAction { if (!dockShown) dock.visibility = View.INVISIBLE }
+                .start()
+        }
+    }
+
+    private fun showTrack(track: NowPlaying.Track?) {
+        if (!ready) return
+        if (track == null) {
+            music.visibility = View.GONE
+            return
+        }
+        music.visibility = View.VISIBLE
+        mTitle.text = track.title
+        mArtist.text = track.artist
+        if (track.art != null) mArt.setImageBitmap(track.art) else mArt.setImageResource(R.drawable.ic_music)
+        mPlay.setImageResource(if (track.playing) R.drawable.ic_pause else R.drawable.ic_play)
+    }
+
+    private fun toggleLyrics() {
+        CarBrowser.toggleLyrics { state ->
+            showToast(
+                when (state) {
+                    "on" -> "Letra activada"
+                    "off" -> "Letra desactivada"
+                    "novideo" -> "Abre un video primero"
+                    else -> "Este video no trae letra"
+                }
+            )
+        }
+    }
+
+    private fun showToast(text: String) {
+        if (!ready) return
+        toast.text = text
+        toast.animate().cancel()
+        toast.animate().alpha(1f).setDuration(180).start()
+        handler.removeCallbacks(hideToast)
+        handler.postDelayed(hideToast, 1800)
     }
 
     // --- Entrada táctil del auto ---
 
     fun tap(x: Float, y: Float) {
         finishDrag()
+        val wasHidden = !dockShown
+        poke()
+        // Si el dock estaba oculto y tocaste justo donde aparece, solo lo mostramos.
+        if (wasHidden && hitsDock(x, y)) return
         val now = SystemClock.uptimeMillis()
         send(MotionEvent.ACTION_DOWN, now, now, x, y)
         send(MotionEvent.ACTION_UP, now, now + 40, x, y)
     }
 
+    private fun hitsDock(x: Float, y: Float): Boolean =
+        x >= dock.left && x <= dock.right && y >= dock.top && y <= dock.bottom
+
     /*
      * Android Auto manda el desplazamiento en pedacitos. Los convertimos en un
-     * arrastre real (dedo abajo → mover → dedo arriba) para que cualquier página
-     * haga scroll de forma natural. Solo se empieza cuando el movimiento es claro,
-     * así un roce mínimo nunca se convierte en un toque accidental.
+     * arrastre real para que la página haga scroll natural, y solo empezamos
+     * cuando el movimiento es claro (un roce nunca se vuelve toque).
      */
     private var dragging = false
     private var dragDown = 0L
@@ -149,6 +248,7 @@ class CarPresentation(
 
     private fun finishDrag() {
         handler.removeCallbacks(endDrag)
+        handler.removeCallbacks(resetPending)
         pendingDx = 0f
         pendingDy = 0f
         if (!dragging) return

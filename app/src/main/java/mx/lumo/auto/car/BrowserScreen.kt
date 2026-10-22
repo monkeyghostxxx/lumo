@@ -22,8 +22,8 @@ import mx.lumo.auto.R
 
 /**
  * Pantalla única en el auto. NavigationTemplate solo se usa para obtener
- * la pantalla completa; lo único que Android Auto dibuja encima es una
- * barrita mínima con atrás, buscar e inicio.
+ * la pantalla completa; Android Auto solo dibuja encima la lupa (su teclado).
+ * Todo lo demás está en el dock de vidrio.
  */
 class BrowserScreen(carContext: CarContext) : Screen(carContext), DefaultLifecycleObserver {
 
@@ -61,9 +61,7 @@ class BrowserScreen(carContext: CarContext) : Screen(carContext), DefaultLifecyc
 
     override fun onGetTemplate(): Template {
         val strip = ActionStrip.Builder()
-            .addAction(action(R.drawable.ic_back) { CarBrowser.back() })
             .addAction(action(R.drawable.ic_search) { screenManager.push(SearchScreen(carContext)) })
-            .addAction(action(R.drawable.ic_home) { CarBrowser.home(carContext) })
             .build()
         return NavigationTemplate.Builder().setActionStrip(strip).build()
     }

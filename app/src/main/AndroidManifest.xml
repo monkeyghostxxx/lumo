@@ -51,6 +51,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Ver qué suena en Spotify/YouTube Music para el dock del auto -->
+        <service
+            android:name=".music.MusicListener"
+            android:exported="true"
+            android:label="Lumo · música en el auto"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
         <service
             android:name=".car.LumoCarAppService"
             android:exported="true">

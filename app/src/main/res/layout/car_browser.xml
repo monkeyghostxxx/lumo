@@ -18,28 +18,164 @@
         android:background="#000000"
         android:visibility="gone" />
 
-    <!-- Línea de carga discreta -->
+    <!-- Línea de carga -->
     <ProgressBar
         android:id="@+id/progress"
         style="@android:style/Widget.Material.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="3dp"
+        android:layout_height="2dp"
         android:layout_gravity="top"
         android:alpha="0"
         android:max="100"
         android:progressBackgroundTint="#00000000"
-        android:progressTint="@color/accent" />
+        android:progressTint="#FFFFFF" />
 
-    <TextView
+    <!-- Auto en movimiento -->
+    <FrameLayout
         android:id="@+id/moving_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F2000000"
+        android:background="#E6000000"
         android:clickable="true"
-        android:gravity="center"
-        android:lineSpacingExtra="6dp"
-        android:text="En pausa\nDisponible con el auto detenido"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_glass_card"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:paddingStart="36dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="36dp"
+            android:paddingBottom="24dp"
+            android:text="En pausa\nDisponible con el auto detenido"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
+    </FrameLayout>
+
+    <!-- Aviso flotante -->
+    <TextView
+        android:id="@+id/toast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="20dp"
+        android:alpha="0"
+        android:background="@drawable/bg_glass_pill"
+        android:elevation="10dp"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="10dp"
         android:textColor="#FFFFFF"
-        android:textSize="22sp"
-        android:visibility="gone" />
+        android:textSize="16sp" />
+
+    <!-- Dock de vidrio -->
+    <LinearLayout
+        android:id="@+id/dock"
+        android:layout_width="wrap_content"
+        android:layout_height="68dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="18dp"
+        android:background="@drawable/bg_glass_pill"
+        android:clickable="true"
+        android:elevation="14dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            style="@style/GlassIcon"
+            android:contentDescription="Atrás"
+            android:src="@drawable/ic_back" />
+
+        <ImageButton
+            android:id="@+id/btn_home"
+            style="@style/GlassIcon"
+            android:contentDescription="Inicio"
+            android:src="@drawable/ic_home" />
+
+        <ImageButton
+            android:id="@+id/btn_lyrics"
+            style="@style/GlassIcon"
+            android:contentDescription="Letra"
+            android:src="@drawable/ic_lyrics" />
+
+        <!-- Música (Spotify, YouTube Music…) -->
+        <LinearLayout
+            android:id="@+id/music"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="12dp"
+                android:background="#33FFFFFF" />
+
+            <ImageView
+                android:id="@+id/m_art"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:background="@drawable/bg_art"
+                android:clipToOutline="true"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="6dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/m_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxWidth="240dp"
+                    android:singleLine="true"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/m_artist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxWidth="240dp"
+                    android:singleLine="true"
+                    android:textColor="#A6FFFFFF"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/m_prev"
+                style="@style/GlassIcon"
+                android:contentDescription="Anterior"
+                android:src="@drawable/ic_skip_prev" />
+
+            <ImageButton
+                android:id="@+id/m_play"
+                style="@style/GlassIcon.Solid"
+                android:contentDescription="Reproducir o pausar"
+                android:src="@drawable/ic_play" />
+
+            <ImageButton
+                android:id="@+id/m_next"
+                style="@style/GlassIcon"
+                android:contentDescription="Siguiente"
+                android:src="@drawable/ic_skip_next" />
+        </LinearLayout>
+    </LinearLayout>
+
 </FrameLayout>

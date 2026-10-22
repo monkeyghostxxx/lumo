@@ -1,7 +1,9 @@
 package mx.lumo.auto
 
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.provider.Settings
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -10,6 +12,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import mx.lumo.auto.car.CarBrowser
+import mx.lumo.auto.music.NowPlaying
 
 class MainActivity : Activity() {
 
@@ -17,6 +20,7 @@ class MainActivity : Activity() {
     private lateinit var current: TextView
     private lateinit var speedCard: View
     private lateinit var helpCard: View
+    private lateinit var musicCard: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +30,7 @@ class MainActivity : Activity() {
         current = findViewById(R.id.current)
         speedCard = findViewById(R.id.speed_card)
         helpCard = findViewById(R.id.help_card)
+        musicCard = findViewById(R.id.music_card)
 
         findViewById<View>(R.id.btn_send).setOnClickListener { send() }
         input.setOnEditorActionListener { _, actionId, _ ->
@@ -37,6 +42,10 @@ class MainActivity : Activity() {
         }
         findViewById<View>(R.id.btn_speed).setOnClickListener {
             requestPermissions(arrayOf(SPEED_PERMISSION), REQ_SPEED)
+        }
+        findViewById<View>(R.id.btn_music).setOnClickListener {
+            runCatching { startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+            Toast.makeText(this, "Busca Lumo en la lista y actívalo", Toast.LENGTH_LONG).show()
         }
         findViewById<View>(R.id.btn_help).setOnClickListener {
             helpCard.visibility = if (helpCard.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -72,6 +81,7 @@ class MainActivity : Activity() {
         current.text = "En el auto: " + CarBrowser.lastUrl(this)
         val granted = checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED
         speedCard.visibility = if (granted) View.GONE else View.VISIBLE
+        musicCard.visibility = if (NowPlaying.hasAccess(this)) View.GONE else View.VISIBLE
     }
 
     private companion object {
