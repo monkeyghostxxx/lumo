@@ -22,6 +22,9 @@ import android.widget.TextView
 import android.widget.Toast
 import mx.lumo.auto.car.CarBrowser
 import mx.lumo.auto.data.DataBudget
+import mx.lumo.auto.mirror.Mirror
+import mx.lumo.auto.mirror.MirrorActivity
+import mx.lumo.auto.mirror.MirrorService
 import mx.lumo.auto.music.NowPlaying
 import mx.lumo.auto.ui.Accent
 import java.util.Locale
@@ -55,6 +58,9 @@ class MainActivity : Activity() {
 
     private val density get() = resources.displayMetrics.density
     private val stateListener: (CarBrowser.State?) -> Unit = { showState(it) }
+    private val mirrorListener: (Boolean) -> Unit = { on ->
+        findViewById<TextView>(R.id.btn_mirror).text = if (on) "Detener espejo" else "Iniciar espejo"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +96,12 @@ class MainActivity : Activity() {
         tap(R.id.r_clock) { CarBrowser.toggleAmbientOnCar() }
         tap(R.id.r_vol_down) { volume(AudioManager.ADJUST_LOWER) }
         tap(R.id.r_vol_up) { volume(AudioManager.ADJUST_RAISE) }
+
+        // Espejo
+        findViewById<View>(R.id.btn_mirror).setOnClickListener {
+            if (Mirror.active) startService(MirrorService.stopIntent(this))
+            else startActivity(Intent(this, MirrorActivity::class.java))
+        }
 
         // Enviar
         findViewById<View>(R.id.btn_send).setOnClickListener { send() }
@@ -142,11 +154,13 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         CarBrowser.listenState(stateListener)
+        Mirror.listen(mirrorListener)
         refresh()
     }
 
     override fun onPause() {
         CarBrowser.unlistenState(stateListener)
+        Mirror.unlisten(mirrorListener)
         super.onPause()
     }
 
@@ -325,7 +339,7 @@ class MainActivity : Activity() {
         rProgress.progressTintList = tint
         dBar.progressTintList = tint
         rPlay.backgroundTintList = tint
-        listOf(R.id.btn_send, R.id.btn_server, R.id.btn_music, R.id.btn_speed).forEach {
+        listOf(R.id.btn_send, R.id.btn_server, R.id.btn_music, R.id.btn_speed, R.id.btn_mirror).forEach {
             findViewById<View>(it).backgroundTintList = tint
         }
     }

@@ -10,6 +10,7 @@ Pantalla única y limpia en Android Auto para ver YouTube (y sitios de video sin
 - **Temas**: Lima, Hielo, Violeta, Coral, Neutro.
 - **Mi servidor**: abre tu Jellyfin/Plex en el auto.
 - **Modo audio al manejar**: la imagen se oculta y el sonido sigue; vuelve al detenerte.
+- **Espejo de YouTube**: la app oficial de YouTube (con tu Premium, sin anuncios) en la pantalla del auto, dentro del diseño de Lumo. En Android 14+ elige «Una sola app».
 - Netflix, Disney+, Prime, Max **no** funcionan (DRM).
 
 ## 1. Obtener el APK (sin instalar nada)

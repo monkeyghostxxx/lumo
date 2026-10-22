@@ -13,7 +13,10 @@ import android.util.LruCache
 import android.util.TypedValue
 import android.view.Display
 import android.view.Gravity
+import android.graphics.SurfaceTexture
 import android.view.InputDevice
+import android.view.Surface
+import android.view.TextureView
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +30,7 @@ import androidx.dynamicanimation.animation.DynamicAnimation
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import mx.lumo.auto.R
+import mx.lumo.auto.mirror.Mirror
 import mx.lumo.auto.music.NowPlaying
 import mx.lumo.auto.ui.Accent
 import java.net.HttpURLConnection
@@ -59,6 +63,9 @@ class CarPresentation(
     private lateinit var mTitle: TextView
     private lateinit var mArtist: TextView
     private lateinit var mPlay: ImageButton
+    private lateinit var mirrorView: TextureView
+    private var mirrorSurface: Surface? = null
+    private var mirroring = false
 
     private var ready = false
     private var pendingMoving = false
@@ -78,6 +85,7 @@ class CarPresentation(
     private val musicListener: (NowPlaying.Track?) -> Unit = { showTrack(it) }
     private val stateListener: (CarBrowser.State?) -> Unit = { onState(it) }
     private val accentListener: (Int) -> Unit = { applyAccent(it) }
+    private val mirrorListener: (Boolean) -> Unit = { setMirroring(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,6 +106,22 @@ class CarPresentation(
         mTitle = findViewById(R.id.m_title)
         mArtist = findViewById(R.id.m_artist)
         mPlay = findViewById(R.id.m_play)
+        mirrorView = findViewById(R.id.mirror_view)
+        mirrorView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+            override fun onSurfaceTextureAvailable(st: SurfaceTexture, w: Int, h: Int) {
+                st.setDefaultBufferSize(surfaceWidth, surfaceHeight)
+                mirrorSurface = Surface(st)
+                connectMirror()
+            }
+            override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, w: Int, h: Int) = Unit
+            override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
+                Mirror.detach()
+                mirrorSurface?.release()
+                mirrorSurface = null
+                return true
+            }
+            override fun onSurfaceTextureUpdated(st: SurfaceTexture) = Unit
+        }
 
         clock = ClockView(context)
         clock.setSizePx(surfaceHeight * 0.34f)
@@ -114,6 +138,7 @@ class CarPresentation(
         click(R.id.m_play) { NowPlaying.toggle() }
         click(R.id.m_next) { NowPlaying.next() }
         click(R.id.related_close) { hideRelated() }
+        click(R.id.btn_mirror_stop) { Mirror.stop() }
 
         val web = CarBrowser.attach(context, this)
         webContainer.addView(
@@ -126,6 +151,7 @@ class CarPresentation(
         Accent.listen(accentListener)
         NowPlaying.start(context, musicListener)
         CarBrowser.listenState(stateListener)
+        Mirror.listen(mirrorListener)
         setMoving(pendingMoving)
         poke()
     }
@@ -134,6 +160,8 @@ class CarPresentation(
         handler.removeCallbacksAndMessages(null)
         if (ready) {
             clock.stop()
+            Mirror.unlisten(mirrorListener)
+            Mirror.detach()
             Accent.unlisten(accentListener)
             CarBrowser.unlistenState(stateListener)
             NowPlaying.stop(musicListener)
@@ -220,6 +248,43 @@ class CarPresentation(
         }
     }
 
+    // --- Espejo de YouTube (app oficial, con Premium) ---
+
+    private fun setMirroring(on: Boolean) {
+        if (!ready || on == mirroring) return
+        mirroring = on
+        listOf(R.id.btn_back, R.id.btn_home, R.id.btn_related, R.id.btn_lyrics).forEach {
+            findViewById<View>(it).visibility = if (on) View.GONE else View.VISIBLE
+        }
+        findViewById<View>(R.id.btn_mirror_stop).visibility = if (on) View.VISIBLE else View.GONE
+        if (on) {
+            CarBrowser.pauseMedia()
+            hideRelated()
+            hideAmbient()
+            mirrorView.visibility = View.VISIBLE
+            mirrorView.alpha = 0f
+            mirrorView.animate().alpha(1f).setDuration(400).start()
+            webContainer.visibility = View.INVISIBLE
+            connectMirror()
+            showToast("Espejo activo · usa YouTube en tu teléfono")
+        } else {
+            mirrorView.animate().alpha(0f).setDuration(250)
+                .withEndAction { if (!mirroring) mirrorView.visibility = View.GONE }.start()
+            webContainer.visibility = View.VISIBLE
+            showToast("Espejo detenido")
+        }
+        poke()
+    }
+
+    private fun connectMirror() {
+        val surface = mirrorSurface ?: return
+        if (!mirroring) return
+        val dpi = context.resources.displayMetrics.densityDpi
+        if (!Mirror.attach(surface, surfaceWidth, surfaceHeight, dpi)) {
+            showToast("No se pudo iniciar el espejo")
+        }
+    }
+
     // --- Movimiento: modo audio ---
 
     fun setMoving(value: Boolean) {
@@ -252,7 +317,7 @@ class CarPresentation(
 
         // Sin nada sonando por 2 minutos → modo ambiente.
         val idle = SystemClock.uptimeMillis() - lastInteraction > 120_000
-        if (idle && s?.playing != true && !musicPlaying && !ambientShown && !moving) showAmbient()
+        if (idle && s?.playing != true && !musicPlaying && !ambientShown && !moving && !mirroring) showAmbient()
     }
 
     // --- Dock ---
