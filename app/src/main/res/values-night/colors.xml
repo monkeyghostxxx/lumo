@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Monocromo: sigue el modo claro/oscuro del sistema -->
+<resources>
+    <color name="bg">#000000</color>
+    <color name="text">#F5F5F7</color>
+    <color name="text_dim">#8E8E96</color>
+    <color name="text_faint">#80FFFFFF</color>
+    <color name="icon">#FFFFFF</color>
+    <color name="accent">#FFFFFF</color>
+    <color name="on_accent">#000000</color>
+    <color name="card">#0E0E10</color>
+    <color name="card_stroke">#1FFFFFFF</color>
+    <color name="glass_fill">#A6101012</color>
+    <color name="glass_highlight">#24FFFFFF</color>
+    <color name="glass_stroke">#33FFFFFF</color>
+    <color name="ripple">#33FFFFFF</color>
+    <color name="overlay">#F2000000</color>
+    <color name="track">#26FFFFFF</color>
+    <color name="input_fill">#14FFFFFF</color>
+    <color name="placeholder">#26FFFFFF</color>
+</resources>

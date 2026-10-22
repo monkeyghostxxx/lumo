@@ -7,7 +7,7 @@ Pantalla única y limpia en Android Auto para ver YouTube (y sitios de video sin
 - **Modo ambiente**: reloj con dígitos que ruedan; aparece solo tras 2 min sin reproducir.
 - **Control remoto** desde el teléfono: play/pausa, ±10 s, siguiente, volumen, relacionados, letra y reloj.
 - **Presupuesto de datos**: escoge la calidad (360p–1080p) para que tus GB alcancen hasta el corte.
-- **Temas**: Lima, Hielo, Violeta, Coral, Neutro.
+- **Tema monocromo**: negro total o claro según el sistema (en el auto, según el modo día/noche de Android Auto).
 - **Mi servidor**: abre tu Jellyfin/Plex en el auto.
 - **Modo audio al manejar**: la imagen se oculta y el sonido sigue; vuelve al detenerte.
 - **Espejo de YouTube**: la app oficial de YouTube (con tu Premium, sin anuncios) en la pantalla del auto, dentro del diseño de Lumo. En Android 14+ elige «Una sola app».

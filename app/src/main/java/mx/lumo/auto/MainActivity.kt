@@ -53,7 +53,6 @@ class MainActivity : Activity() {
     private lateinit var dGb: EditText
     private lateinit var dCut: EditText
 
-    private lateinit var themes: LinearLayout
     private lateinit var serverUrl: EditText
 
     private val density get() = resources.displayMetrics.density
@@ -83,7 +82,6 @@ class MainActivity : Activity() {
         dHours = findViewById(R.id.d_hours)
         dGb = findViewById(R.id.d_gb)
         dCut = findViewById(R.id.d_cut)
-        themes = findViewById(R.id.themes)
         serverUrl = findViewById(R.id.server_url)
 
         // Control remoto
@@ -149,7 +147,6 @@ class MainActivity : Activity() {
             refresh()
         }
 
-        buildThemes()
     }
 
     override fun onResume() {
@@ -271,7 +268,7 @@ class MainActivity : Activity() {
                 text = label
                 gravity = Gravity.CENTER
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
-                setTextColor(if (on) 0xFF000000.toInt() else 0xFFF4F4F5.toInt())
+                setTextColor(getColor(if (on) R.color.on_accent else R.color.text))
                 setBackgroundResource(if (on) R.drawable.bg_chip_on else R.drawable.bg_chip)
                 if (on) backgroundTintList = ColorStateList.valueOf(accent)
                 setPadding((14 * density).toInt(), 0, (14 * density).toInt(), 0)
@@ -280,46 +277,6 @@ class MainActivity : Activity() {
             row.addView(chip, LinearLayout.LayoutParams(0, (36 * density).toInt(), 1f).apply {
                 if (i > 0) marginStart = (8 * density).toInt()
             })
-        }
-    }
-
-    // --- Tema ---
-
-    private fun buildThemes() {
-        themes.removeAllViews()
-        val selected = Accent.index(this)
-        Accent.options.forEachIndexed { i, option ->
-            val cell = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER_HORIZONTAL
-                setOnClickListener {
-                    Accent.set(this@MainActivity, i)
-                    buildThemes()
-                    refresh()
-                }
-            }
-            val on = i == selected
-            val ring = FrameLayout(this).apply {
-                if (on) setBackgroundResource(R.drawable.bg_chip)
-            }
-            val dot = View(this).apply {
-                setBackgroundResource(R.drawable.bg_dot)
-                backgroundTintList = ColorStateList.valueOf(option.color)
-                alpha = if (on) 1f else 0.55f
-            }
-            val size = (40 * density).toInt()
-            val dotSize = ((if (on) 26 else 22) * density).toInt()
-            ring.addView(dot, FrameLayout.LayoutParams(dotSize, dotSize, Gravity.CENTER))
-            cell.addView(ring, LinearLayout.LayoutParams(size, size))
-            cell.addView(TextView(this).apply {
-                text = option.name
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
-                setTextColor(if (i == selected) 0xFFF4F4F5.toInt() else 0x8CFFFFFF.toInt())
-                gravity = Gravity.CENTER
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = (6 * density).toInt()
-            })
-            themes.addView(cell, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         }
     }
 

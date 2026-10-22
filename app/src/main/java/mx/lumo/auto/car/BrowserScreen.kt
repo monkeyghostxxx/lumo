@@ -93,6 +93,8 @@ class BrowserScreen(carContext: CarContext) : Screen(carContext), DefaultLifecyc
         renderer.setMoving(moving)
     }
 
+    fun onDayNightChanged() = renderer.onDayNightChanged()
+
     private companion object {
         const val MOVING_MPS = 2.0f // ~7 km/h
     }

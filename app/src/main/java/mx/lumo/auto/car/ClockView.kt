@@ -14,6 +14,7 @@ import android.widget.TextView
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import mx.lumo.auto.R
 
 /**
  * Reloj de modo ambiente: cada dígito "rueda" como un contador
@@ -55,7 +56,7 @@ class ClockView(context: Context) : LinearLayout(context) {
         addView(row)
 
         date.gravity = Gravity.CENTER
-        date.setTextColor(0x99FFFFFF.toInt())
+        date.setTextColor(context.getColor(R.color.text_dim))
         date.letterSpacing = 0.08f
         date.typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
         addView(date, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
@@ -138,7 +139,7 @@ class ClockView(context: Context) : LinearLayout(context) {
             text = ch.toString()
             gravity = Gravity.CENTER
             includeFontPadding = false
-            setTextColor(0xFFFFFFFF.toInt())
+            setTextColor(context.getColor(R.color.text))
             typeface = Typeface.create("sans-serif-thin", Typeface.NORMAL)
             setTextSize(TypedValue.COMPLEX_UNIT_PX, sizePx)
             fontFeatureSettings = "tnum"

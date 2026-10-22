@@ -85,7 +85,7 @@
                 android:layout_height="3dp"
                 android:layout_marginTop="14dp"
                 android:max="1000"
-                android:progressBackgroundTint="#26FFFFFF" />
+                android:progressBackgroundTint="@color/track" />
 
             <TextView
                 android:id="@+id/r_time"
@@ -120,7 +120,7 @@
                     android:padding="19dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_play"
-                    android:tint="#000000" />
+                    android:tint="@color/on_accent" />
 
                 <ImageButton
                     android:id="@+id/r_fwd10"
@@ -275,7 +275,7 @@
                 android:layout_height="4dp"
                 android:layout_marginTop="10dp"
                 android:max="1000"
-                android:progressBackgroundTint="#26FFFFFF" />
+                android:progressBackgroundTint="@color/track" />
 
             <TextView
                 android:id="@+id/d_info"
@@ -341,21 +341,6 @@
                     android:layout_marginStart="10dp"
                     android:text="Guardar" />
             </LinearLayout>
-        </LinearLayout>
-
-        <!-- Tema -->
-        <LinearLayout style="@style/GlassCard">
-
-            <TextView
-                style="@style/CardLabel"
-                android:text="TEMA" />
-
-            <LinearLayout
-                android:id="@+id/themes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="horizontal" />
         </LinearLayout>
 
         <!-- Mi servidor -->

@@ -99,7 +99,6 @@ class CarPresentation(
     private val hideToast = Runnable { toast.animate().alpha(0f).translationY(-8f).setDuration(260).start() }
     private val musicListener: (NowPlaying.Track?) -> Unit = { showTrack(it) }
     private val stateListener: (CarBrowser.State?) -> Unit = { onState(it) }
-    private val accentListener: (Int) -> Unit = { applyAccent(it) }
     private val mirrorListener: (Boolean) -> Unit = { setMirroring(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -168,7 +167,6 @@ class CarPresentation(
         ready = true
 
         applyAccent(Accent.color(context))
-        Accent.listen(accentListener)
         NowPlaying.start(context, musicListener)
         CarBrowser.listenState(stateListener)
         Mirror.listen(mirrorListener)
@@ -182,7 +180,6 @@ class CarPresentation(
             clock.stop()
             Mirror.unlisten(mirrorListener)
             Mirror.detach()
-            Accent.unlisten(accentListener)
             CarBrowser.unlistenState(stateListener)
             NowPlaying.stop(musicListener)
             CarBrowser.detach()
@@ -473,7 +470,7 @@ class CarPresentation(
                 text = item.title
                 maxLines = 2
                 ellipsize = android.text.TextUtils.TruncateAt.END
-                setTextColor(0xE6FFFFFF.toInt())
+                setTextColor(context.getColor(R.color.text))
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
             }
             card.addView(title, LinearLayout.LayoutParams(w, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
