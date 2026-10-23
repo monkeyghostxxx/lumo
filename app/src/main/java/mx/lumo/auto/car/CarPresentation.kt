@@ -23,6 +23,7 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
@@ -103,6 +104,13 @@ class CarPresentation(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Esta ventana nace de un servicio (no de una Activity), así que Android no le
+        // activa la GPU por defecto. Sin GPU el video de la página y del espejo no se
+        // dibuja: solo se oye. Se activa antes de mostrar la ventana.
+        window?.setFlags(
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        )
         setContentView(R.layout.car_browser)
         webContainer = findViewById(R.id.web_container)
         fullscreenContainer = findViewById(R.id.fullscreen_container)
