@@ -1,4 +1,4 @@
-# Lumo — videos en Android Auto
+# Kali (antes Lumo) — videos en Android Auto
 
 Pantalla única y limpia en Android Auto para ver YouTube (y sitios de video sin DRM) en el auto, con interfaz de vidrio.
 

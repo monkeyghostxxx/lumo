@@ -159,6 +159,11 @@ class CarUi(
         click(R.id.m_next) { NowPlaying.next() }
         click(R.id.related_close) { hideRelated() }
         click(R.id.btn_mirror_stop) { Mirror.stop() }
+        click(R.id.btn_fit) {
+            val f = CarBrowser.cycleFit(context)
+            showToast(f.label)
+            if (mirroring && zoomed) animateZoom(videoMatrix(phoneSize()))
+        }
         click(R.id.btn_zoom) {
             autoZoom = !autoZoom
             showToast(if (autoZoom) "Zoom al video: automático" else "Zoom al video: apagado")
@@ -373,11 +378,16 @@ class CarUi(
         val ry = oy + statusBarPx() * k
         val rw = pw * k
         val rh = pw * 9f / 16f * k
-        val s = min(w / rw, h / rh)
+        // Ajustar = cabe completo; Llenar = cubre todo (recorta); Estirar = cubre sin recortar
+        val (sx, sy) = when (CarBrowser.fit(context)) {
+            CarBrowser.Fit.AJUSTAR -> min(w / rw, h / rh).let { it to it }
+            CarBrowser.Fit.LLENAR -> kotlin.math.max(w / rw, h / rh).let { it to it }
+            CarBrowser.Fit.ESTIRAR -> (w / rw) to (h / rh)
+        }
         return Matrix().apply {
             postTranslate(-rx, -ry)
-            postScale(s, s)
-            postTranslate((w - rw * s) / 2f, (h - rh * s) / 2f)
+            postScale(sx, sy)
+            postTranslate((w - rw * sx) / 2f, (h - rh * sy) / 2f)
         }
     }
 

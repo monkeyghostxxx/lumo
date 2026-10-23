@@ -34,10 +34,12 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-light"
-                    android:text="Lumo"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.02"
+                    android:text="kali&gt;_"
                     android:textColor="@color/text"
-                    android:textSize="34sp" />
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/status"
@@ -314,7 +316,7 @@
                     android:layout_height="46dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_input"
-                    android:hint="GB para Lumo"
+                    android:hint="GB para Kali"
                     android:inputType="numberDecimal"
                     android:paddingStart="14dp"
                     android:textColor="@color/text"
@@ -386,7 +388,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Muestra la canción que suena con controles. Android lo llama «acceso a notificaciones»; Lumo no las lee."
+                android:text="Muestra la canción que suena con controles. Android lo llama «acceso a notificaciones»; Kali no las lee."
                 android:textColor="@color/text_dim"
                 android:textSize="14sp" />
 
@@ -402,7 +404,7 @@
             android:id="@+id/help_card"
             style="@style/GlassCard"
             android:lineSpacingExtra="4dp"
-            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → «Fuentes desconocidas».\n4. Con el auto estacionado, abre Lumo desde el menú de apps del auto. Necesita Android 15 o superior.\n\nEn el auto: toca para usar la página y desliza para hacer scroll. El dock de vidrio (atrás, inicio, relacionados, letra, reloj y tu música) se esconde solo y vuelve al tocar. La lupa de arriba abre el teclado.\n\nNetflix, Disney+ y Prime no se pueden mostrar (su protección deja la pantalla en negro)."
+            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → «Fuentes desconocidas».\n4. Con el auto estacionado, abre Kali desde el menú de apps del auto. Necesita Android 15 o superior.\n\nEn el auto: toca para usar la página y desliza para hacer scroll. El dock de vidrio (atrás, inicio, relacionados, letra, reloj y tu música) se esconde solo y vuelve al tocar. La lupa de arriba abre el teclado.\n\nNetflix, Disney+ y Prime no se pueden mostrar (su protección deja la pantalla en negro)."
             android:textColor="@color/text_dim"
             android:textSize="14sp"
             android:visibility="gone" />

@@ -74,7 +74,7 @@ class MirrorService : Service() {
         )
         val n = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_mirror)
-            .setContentTitle("Lumo · espejo en el auto")
+            .setContentTitle("Kali · espejo en el auto")
             .setContentText("Tu pantalla se muestra en Android Auto")
             .setOngoing(true)
             .addAction(Notification.Action.Builder(null, "Detener", stop).build())

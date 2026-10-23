@@ -61,6 +61,33 @@ object CarBrowser {
     private var fullscreenCallback: WebChromeClient.CustomViewCallback? = null
     private var lyricsOn = false
 
+    /** Cómo llena el video la pantalla del auto. */
+    enum class Fit(val css: String, val label: String) {
+        AJUSTAR("contain", "Ajustar · completo, sin deformar"),
+        LLENAR("cover", "Llenar · toda la pantalla, recorta bordes"),
+        ESTIRAR("fill", "Estirar · toda la pantalla, sin recortar")
+    }
+
+    fun fit(context: Context): Fit = runCatching {
+        Fit.valueOf(context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getString("fit", Fit.AJUSTAR.name)!!)
+    }.getOrDefault(Fit.AJUSTAR)
+
+    /** Pasa a la siguiente proporción, la guarda y la aplica. */
+    fun cycleFit(context: Context): Fit {
+        val all = Fit.values()
+        val next = all[(fit(context).ordinal + 1) % all.size]
+        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit().putString("fit", next.name).apply()
+        applyFit()
+        return next
+    }
+
+    private fun applyFit() {
+        val ctx = appContext ?: return
+        js("document.documentElement.style.setProperty('--lumo-fit','${fit(ctx).css}')")
+    }
+
     // Pantalla completa automática al reproducir un video
     private var cine = false
     private var cineDismissed = false
@@ -246,6 +273,7 @@ object CarBrowser {
     private fun setCine(on: Boolean) {
         cine = on
         js("document.documentElement.classList." + (if (on) "add" else "remove") + "('lumo-cine')")
+        applyFit()
     }
 
     private fun parseState(raw: String?): State? = runCatching {
@@ -305,6 +333,7 @@ object CarBrowser {
                 cineDismissed = false
                 if (url.startsWith("http")) saveLast(view.context, url)
                 view.evaluateJavascript(PAGE_CSS, null)
+                applyFit()
                 scheduleQuality()
             }
 
@@ -314,6 +343,7 @@ object CarBrowser {
                 cineDismissed = false
                 if (url.startsWith("http")) saveLast(view.context, url)
                 view.evaluateJavascript(PAGE_CSS, null)
+                applyFit()
                 scheduleQuality()
             }
         }
@@ -381,7 +411,7 @@ object CarBrowser {
             "z-index:2147483646!important;background:#000!important;transform:none!important}'+" +
             "'html.lumo-cine .html5-video-container{width:100vw!important;height:100vh!important}'+" +
             "'html.lumo-cine video{position:absolute!important;left:0!important;top:0!important;" +
-            "width:100vw!important;height:100vh!important;object-fit:contain!important}'+" +
+            "width:100vw!important;height:100vh!important;object-fit:var(--lumo-fit,contain)!important}'+" +
             "'html.lumo-cine ytm-mobile-topbar-renderer,html.lumo-cine header,html.lumo-cine ytm-pivot-bar-renderer{display:none!important}';" +
             "document.documentElement.appendChild(s)})()"
 }

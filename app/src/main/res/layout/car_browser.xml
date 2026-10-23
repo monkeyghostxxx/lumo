@@ -198,6 +198,12 @@
             android:visibility="gone" />
 
         <ImageButton
+            android:id="@+id/btn_fit"
+            style="@style/GlassIcon"
+            android:contentDescription="Proporción del video"
+            android:src="@drawable/ic_aspect" />
+
+        <ImageButton
             android:id="@+id/btn_zoom"
             style="@style/GlassIcon"
             android:contentDescription="Zoom al video"

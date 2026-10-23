@@ -140,7 +140,7 @@ class MainActivity : Activity() {
         }
         findViewById<View>(R.id.btn_music).setOnClickListener {
             runCatching { startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
-            Toast.makeText(this, "Busca Lumo en la lista y actívalo", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Busca Kali en la lista y actívalo", Toast.LENGTH_LONG).show()
         }
         findViewById<View>(R.id.btn_help).setOnClickListener {
             helpCard.visibility = if (helpCard.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -176,7 +176,7 @@ class MainActivity : Activity() {
                     .setInterpolator(android.view.animation.OvershootInterpolator(3f)).start()
             }.start()
             if (!CarBrowser.isOnCarScreen) {
-                Toast.makeText(this, "Abre Lumo en la pantalla del auto", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Abre Kali en la pantalla del auto", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             action()
@@ -191,7 +191,7 @@ class MainActivity : Activity() {
     private fun showState(s: CarBrowser.State?) {
         if (!CarBrowser.isOnCarScreen) {
             status.text = "Auto desconectado"
-            rTitle.text = "Abre Lumo en la pantalla del auto"
+            rTitle.text = "Abre Kali en la pantalla del auto"
             rTime.text = ""
             rProgress.progress = 0
             rPlay.setImageResource(R.drawable.ic_play)

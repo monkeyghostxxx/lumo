@@ -87,7 +87,7 @@
         <service
             android:name=".music.MusicListener"
             android:exported="true"
-            android:label="Lumo · música en el auto"
+            android:label="Kali · música en el auto"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
