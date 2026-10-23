@@ -11,8 +11,8 @@ android {
         applicationId = "mx.lumo.auto"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "3.5"
+        versionCode = 10
+        versionName = "4.0"
     }
 
     buildTypes {

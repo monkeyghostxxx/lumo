@@ -402,7 +402,7 @@
             android:id="@+id/help_card"
             style="@style/GlassCard"
             android:lineSpacingExtra="4dp"
-            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → «Fuentes desconocidas».\n4. Conecta el auto y abre Lumo desde el menú de apps.\n\nEn el auto: toca para usar la página y desliza para hacer scroll. El dock de vidrio (atrás, inicio, relacionados, letra, reloj y tu música) se esconde solo y vuelve al tocar. La lupa de arriba abre el teclado.\n\nNetflix, Disney+ y Prime no se pueden mostrar (su protección deja la pantalla en negro)."
+            android:text="Activar en Android Auto (una sola vez):\n\n1. Ajustes → Android Auto.\n2. Toca 10 veces «Versión» para activar el modo desarrollador.\n3. Menú ⋮ → Configuración para desarrolladores → «Fuentes desconocidas».\n4. Con el auto estacionado, abre Lumo desde el menú de apps del auto. Necesita Android 15 o superior.\n\nEn el auto: toca para usar la página y desliza para hacer scroll. El dock de vidrio (atrás, inicio, relacionados, letra, reloj y tu música) se esconde solo y vuelve al tocar. La lupa de arriba abre el teclado.\n\nNetflix, Disney+ y Prime no se pueden mostrar (su protección deja la pantalla en negro)."
             android:textColor="@color/text_dim"
             android:textSize="14sp"
             android:visibility="gone" />

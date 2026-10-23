@@ -143,6 +143,8 @@ object CarBrowser {
         }
     }
 
+    fun canGoBack(): Boolean = webView?.canGoBack() == true
+
     fun exitFullscreen() {
         val cb = fullscreenCallback ?: return
         fullscreenCallback = null

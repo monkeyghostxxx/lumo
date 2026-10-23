@@ -284,9 +284,9 @@ class MainActivity : Activity() {
 
     private fun refresh() {
         current.text = "En el auto: " + CarBrowser.lastUrl(this)
-        val granted = checkSelfPermission(SPEED_PERMISSION) == PackageManager.PERMISSION_GRANTED
         // El permiso de velocidad es opcional: solo aparece dentro de la ayuda (?).
-        speedCard.visibility = if (!granted && helpCard.visibility == View.VISIBLE) View.VISIBLE else View.GONE
+        // Ya no hace falta: Android Auto solo muestra Lumo con el auto estacionado.
+        speedCard.visibility = View.GONE
         musicCard.visibility = if (NowPlaying.hasAccess(this)) View.GONE else View.VISIBLE
         applyAccent(Accent.color(this))
         showState(CarBrowser.state)
