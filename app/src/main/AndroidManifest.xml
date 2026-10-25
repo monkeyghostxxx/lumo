@@ -52,6 +52,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:label="Iniciar sesión en YouTube" />
+
         <!-- Compartir → Lumo -->
         <activity
             android:name=".ShareActivity"

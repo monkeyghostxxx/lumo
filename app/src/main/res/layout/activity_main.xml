@@ -177,6 +177,29 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Cuenta de YouTube -->
+        <LinearLayout style="@style/GlassCard">
+
+            <TextView
+                style="@style/CardLabel"
+                android:text="TU CUENTA DE YOUTUBE" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Inicia sesión para usar tu Premium (sin anuncios) en Kali. Si Google muestra «Este navegador o app no es seguro», es un bloqueo de Google para apps como esta."
+                android:textColor="@color/text_dim"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/btn_login"
+                style="@style/PillButton"
+                android:layout_width="match_parent"
+                android:layout_marginTop="12dp"
+                android:text="Iniciar sesión" />
+        </LinearLayout>
+
         <!-- Enviar enlace -->
         <LinearLayout style="@style/GlassCard">
 

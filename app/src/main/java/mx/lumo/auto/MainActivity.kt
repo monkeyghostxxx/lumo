@@ -89,6 +89,11 @@ class MainActivity : Activity() {
         tap(R.id.r_vol_down) { volume(AudioManager.ADJUST_LOWER) }
         tap(R.id.r_vol_up) { volume(AudioManager.ADJUST_RAISE) }
 
+        // Cuenta de YouTube
+        findViewById<View>(R.id.btn_login).setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
+
         // Enviar
         findViewById<View>(R.id.btn_send).setOnClickListener { send() }
         input.setOnEditorActionListener { _, actionId, _ ->
@@ -284,7 +289,7 @@ class MainActivity : Activity() {
         rProgress.progressTintList = tint
         dBar.progressTintList = tint
         rPlay.backgroundTintList = tint
-        listOf(R.id.btn_send, R.id.btn_server, R.id.btn_music, R.id.btn_speed).forEach {
+        listOf(R.id.btn_send, R.id.btn_server, R.id.btn_music, R.id.btn_speed, R.id.btn_login).forEach {
             findViewById<View>(it).backgroundTintList = tint
         }
     }

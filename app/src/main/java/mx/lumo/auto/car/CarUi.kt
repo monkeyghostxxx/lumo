@@ -230,7 +230,9 @@ class CarUi(
         fullscreenContainer.removeAllViews()
         fullscreenContainer.addView(
             view,
-            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER
+            )
         )
         fullscreenContainer.visibility = View.VISIBLE
         webContainer.visibility = View.INVISIBLE
