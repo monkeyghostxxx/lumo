@@ -89,8 +89,10 @@ object CarBrowser {
     }
 
     // Pantalla completa automática al reproducir un video
-    private var cine = false
-    private var cineDismissed = false
+    // Pantalla completa automática: se pide una vez por video, tocando el botón
+    // de pantalla completa del propio reproductor (lo que sí funciona en el auto).
+    private var autoFsVideo: String? = null
+    private var autoFsBusy = false
 
     val isFullscreen get() = fullscreenCallback != null
     val isOnCarScreen get() = host != null
@@ -162,10 +164,6 @@ object CarBrowser {
         val w = webView ?: return
         when {
             isFullscreen -> exitFullscreen()
-            cine -> {
-                cineDismissed = true
-                setCine(false)
-            }
             w.canGoBack() -> w.goBack()
         }
     }
@@ -261,8 +259,11 @@ object CarBrowser {
         w.evaluateJavascript(STATE_JS) { raw ->
             state = parseState(raw)
             state?.let { s ->
-                if (s.watching && s.playing && !cine && !cineDismissed && !isFullscreen) setCine(true)
-                if (!s.watching && cine) setCine(false)
+                val vid = currentVideoId(w.url)
+                if (s.watching && s.playing && vid != null && vid != autoFsVideo && !isFullscreen && !autoFsBusy) {
+                    autoFsVideo = vid
+                    enterNativeFullscreen(w)
+                }
             }
             emitState()
             if (state?.watching == true && ticks % 8 == 0) applyQuality()
@@ -270,10 +271,63 @@ object CarBrowser {
         if (ticks % 30 == 0) appContext?.let { DataBudget.sample(it) }
     }
 
-    private fun setCine(on: Boolean) {
-        cine = on
-        js("document.documentElement.classList." + (if (on) "add" else "remove") + "('lumo-cine')")
-        applyFit()
+    private fun currentVideoId(url: String?): String? {
+        url ?: return null
+        Regex("[?&]v=([\\w-]{11})").find(url)?.let { return it.groupValues[1] }
+        Regex("/shorts/([\\w-]{11})").find(url)?.let { return it.groupValues[1] }
+        return null
+    }
+
+    /**
+     * Toca el botón de pantalla completa del reproductor con un toque real.
+     * Si los controles están ocultos, primero toca el video para mostrarlos.
+     * Como respaldo, pide la pantalla completa justo después del toque.
+     */
+    private fun enterNativeFullscreen(w: WebView, attempt: Int = 0) {
+        if (isFullscreen || attempt > 2) { autoFsBusy = false; return }
+        autoFsBusy = true
+        w.evaluateJavascript(FS_TARGET_JS) { raw ->
+            val o = runCatching { JSONObject(JSONTokener(raw).nextValue() as String) }.getOrNull()
+            if (o == null) { autoFsBusy = false; return@evaluateJavascript }
+            val iw = o.optDouble("iw", 0.0)
+            if (iw <= 0) { autoFsBusy = false; return@evaluateJavascript }
+            val k = (w.width / iw).toFloat()
+            val btn = o.optJSONObject("btn")
+            val player = o.optJSONObject("pl")
+            when {
+                btn != null -> {
+                    tapAt(w, (btn.getDouble("x") * k).toFloat(), (btn.getDouble("y") * k).toFloat())
+                    main.postDelayed({ requestFsFallback(w) }, 250)
+                }
+                player != null -> {
+                    // Mostrar controles y volver a buscar el botón
+                    tapAt(w, (player.getDouble("x") * k).toFloat(), (player.getDouble("y") * k).toFloat())
+                    main.postDelayed({ enterNativeFullscreen(w, attempt + 1) }, 450)
+                    return@evaluateJavascript
+                }
+            }
+            main.postDelayed({ autoFsBusy = false }, 800)
+        }
+    }
+
+    private fun requestFsFallback(w: WebView) {
+        if (isFullscreen) return
+        w.evaluateJavascript(
+            "(function(){var p=document.querySelector('#player-container-id,.html5-video-player,#player')||document.querySelector('video');" +
+                "if(p&&!document.fullscreenElement&&p.requestFullscreen)p.requestFullscreen().catch(function(){})})()", null
+        )
+    }
+
+    private fun tapAt(w: WebView, x: Float, y: Float) {
+        val t = android.os.SystemClock.uptimeMillis()
+        val down = android.view.MotionEvent.obtain(t, t, android.view.MotionEvent.ACTION_DOWN, x, y, 0)
+        val up = android.view.MotionEvent.obtain(t, t + 50, android.view.MotionEvent.ACTION_UP, x, y, 0)
+        down.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+        up.source = android.view.InputDevice.SOURCE_TOUCHSCREEN
+        w.dispatchTouchEvent(down)
+        w.dispatchTouchEvent(up)
+        down.recycle()
+        up.recycle()
     }
 
     private fun parseState(raw: String?): State? = runCatching {
@@ -329,8 +383,7 @@ object CarBrowser {
             }
 
             override fun onPageFinished(view: WebView, url: String) {
-                cine = false
-                cineDismissed = false
+                autoFsBusy = false
                 if (url.startsWith("http")) saveLast(view.context, url)
                 view.evaluateJavascript(PAGE_CSS, null)
                 applyFit()
@@ -340,7 +393,6 @@ object CarBrowser {
             // YouTube cambia de video sin recargar la página.
             override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
                 lyricsOn = false
-                cineDismissed = false
                 if (url.startsWith("http")) saveLast(view.context, url)
                 view.evaluateJavascript(PAGE_CSS, null)
                 applyFit()
@@ -380,6 +432,15 @@ object CarBrowser {
         main.postDelayed({ applyQuality() }, 5000)
     }
 
+    private const val FS_TARGET_JS =
+        "(function(){function c(e){if(!e)return null;var r=e.getBoundingClientRect();" +
+            "if(r.width<4||r.height<4)return null;var cs=getComputedStyle(e);" +
+            "if(cs.visibility=='hidden'||cs.display=='none'||parseFloat(cs.opacity)<0.2)return null;" +
+            "return{x:r.left+r.width/2,y:r.top+r.height/2}}" +
+            "var b=document.querySelector('.fullscreen-icon,button.fullscreen-icon,.ytp-fullscreen-button,button[aria-label*=\\\"antalla completa\\\"],button[aria-label*=\\\"ull screen\\\"]');" +
+            "var p=document.querySelector('#player-container-id,.html5-video-player,#player,video');" +
+            "return JSON.stringify({iw:window.innerWidth,btn:c(b),pl:c(p)})})()"
+
     private const val STATE_JS =
         "(function(){var v=document.querySelector('video');var path=location.pathname;" +
             "return JSON.stringify({t:document.title.replace(/ - YouTube$/,''),c:v?v.currentTime:0," +
@@ -402,16 +463,8 @@ object CarBrowser {
             "s.textContent='.ytp-caption-segment,.captions-text span{font-size:clamp(22px,3.4vw,44px)!important;" +
             "line-height:1.35!important;background:rgba(0,0,0,.55)!important;color:#fff!important;" +
             "border-radius:10px!important;padding:2px 10px!important;font-weight:600!important}'+" +
-            // Modo cine: el reproductor ocupa toda la pantalla del auto
-            "'html.lumo-cine body{overflow:hidden!important}'+" +
-            "'html.lumo-cine #player-container-id,html.lumo-cine .player-container,html.lumo-cine #player," +
-            "html.lumo-cine .player-size,html.lumo-cine .html5-video-player{position:fixed!important;" +
-            "left:0!important;top:0!important;right:0!important;bottom:0!important;width:100vw!important;" +
-            "height:100vh!important;max-height:none!important;margin:0!important;padding:0!important;" +
-            "z-index:2147483646!important;background:#000!important;transform:none!important}'+" +
-            "'html.lumo-cine .html5-video-container{width:100vw!important;height:100vh!important}'+" +
-            "'html.lumo-cine video{position:absolute!important;left:0!important;top:0!important;" +
-            "width:100vw!important;height:100vh!important;object-fit:var(--lumo-fit,contain)!important}'+" +
-            "'html.lumo-cine ytm-mobile-topbar-renderer,html.lumo-cine header,html.lumo-cine ytm-pivot-bar-renderer{display:none!important}';" +
+            // Proporción del video en pantalla completa (Ajustar / Llenar / Estirar)
+            "':fullscreen video,video:fullscreen{width:100vw!important;height:100vh!important;" +
+            "object-fit:var(--lumo-fit,contain)!important;background:#000!important}';" +
             "document.documentElement.appendChild(s)})()"
 }
