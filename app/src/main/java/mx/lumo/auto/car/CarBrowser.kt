@@ -83,10 +83,8 @@ object CarBrowser {
         return next
     }
 
-    private fun applyFit() {
-        val ctx = appContext ?: return
-        js("document.documentElement.style.setProperty('--lumo-fit','${fit(ctx).css}')")
-    }
+    // Ajuste de proporción retirado (pantalla completa automática desactivada).
+    private fun applyFit() = Unit
 
     // Pantalla completa automática al reproducir un video
     // Pantalla completa automática: se pide una vez por video, tocando el botón
@@ -259,11 +257,8 @@ object CarBrowser {
         w.evaluateJavascript(STATE_JS) { raw ->
             state = parseState(raw)
             state?.let { s ->
-                val vid = currentVideoId(w.url)
-                if (s.watching && s.playing && vid != null && vid != autoFsVideo && !isFullscreen && !autoFsBusy) {
-                    autoFsVideo = vid
-                    enterNativeFullscreen(w)
-                }
+                // Pantalla completa automática desactivada: en la pantalla del K4
+                // la vista de página (video + sugeridos) es la que se ve bien.
             }
             emitState()
             if (state?.watching == true && ticks % 8 == 0) applyQuality()
@@ -463,8 +458,6 @@ object CarBrowser {
             "s.textContent='.ytp-caption-segment,.captions-text span{font-size:clamp(22px,3.4vw,44px)!important;" +
             "line-height:1.35!important;background:rgba(0,0,0,.55)!important;color:#fff!important;" +
             "border-radius:10px!important;padding:2px 10px!important;font-weight:600!important}'+" +
-            // Proporción del video en pantalla completa (Ajustar / Llenar / Estirar)
-            "':fullscreen video,video:fullscreen{width:100vw!important;height:100vh!important;" +
-            "object-fit:var(--lumo-fit,contain)!important;background:#000!important}';" +
+            "'';" +
             "document.documentElement.appendChild(s)})()"
 }

@@ -196,18 +196,13 @@
             android:contentDescription="Detener espejo"
             android:src="@drawable/ic_mirror"
             android:visibility="gone" />
-
         <ImageButton
             android:id="@+id/btn_fit"
             style="@style/GlassIcon"
-            android:contentDescription="Proporción del video"
-            android:src="@drawable/ic_aspect" />
-
+            android:visibility="gone" />
         <ImageButton
             android:id="@+id/btn_zoom"
             style="@style/GlassIcon"
-            android:contentDescription="Zoom al video"
-            android:src="@drawable/ic_fullscreen"
             android:visibility="gone" />
 
         <ImageButton
@@ -215,30 +210,24 @@
             style="@style/GlassIcon"
             android:contentDescription="Atrás"
             android:src="@drawable/ic_back" />
-
         <ImageButton
             android:id="@+id/btn_home"
             style="@style/GlassIcon"
-            android:contentDescription="Inicio"
-            android:src="@drawable/ic_home" />
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/btn_related"
             style="@style/GlassIcon"
-            android:contentDescription="Relacionados"
+            android:contentDescription="Más videos"
             android:src="@drawable/ic_related" />
-
         <ImageButton
             android:id="@+id/btn_lyrics"
             style="@style/GlassIcon"
-            android:contentDescription="Letra"
-            android:src="@drawable/ic_lyrics" />
-
+            android:visibility="gone" />
         <ImageButton
             android:id="@+id/btn_clock"
             style="@style/GlassIcon"
-            android:contentDescription="Modo ambiente"
-            android:src="@drawable/ic_clock" />
+            android:visibility="gone" />
 
         <!-- Música (Spotify, YouTube Music…) -->
         <LinearLayout

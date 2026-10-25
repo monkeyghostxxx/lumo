@@ -76,6 +76,7 @@ class CarUi(
     private lateinit var mPlay: ImageButton
     private lateinit var mirrorView: TextureView
     private var mirrorSurface: Surface? = null
+    private var mirrorTexture: SurfaceTexture? = null
     private var mirroring = false
     private var autoZoom = true
     private var zoomed = false
@@ -128,8 +129,10 @@ class CarUi(
         mirrorView = findViewById(R.id.mirror_view)
         mirrorView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(st: SurfaceTexture, w: Int, h: Int) {
-                st.setDefaultBufferSize(surfaceWidth, surfaceHeight)
+                mirrorTexture = st
+                phoneSize().let { st.setDefaultBufferSize(it.x, it.y) }
                 mirrorSurface = Surface(st)
+                if (mirroring) mirrorView.setTransform(fitMatrix(phoneSize()))
                 connectMirror()
             }
             override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, w: Int, h: Int) = Unit
@@ -137,6 +140,7 @@ class CarUi(
                 Mirror.detach()
                 mirrorSurface?.release()
                 mirrorSurface = null
+                mirrorTexture = null
                 return true
             }
             override fun onSurfaceTextureUpdated(st: SurfaceTexture) = Unit
@@ -150,25 +154,16 @@ class CarUi(
         ))
 
         click(R.id.btn_back) { CarBrowser.back() }
-        click(R.id.btn_home) { CarBrowser.home(context) }
-        click(R.id.btn_related) { showRelated() }
-        click(R.id.btn_lyrics) { toggleLyrics() }
-        click(R.id.btn_clock) { toggleAmbient() }
+        // "Más videos": sale de pantalla completa para ver la página con la lista
+        // de sugeridos; si ya está en la página, abre el carrusel de relacionados.
+        click(R.id.btn_related) {
+            if (CarBrowser.isFullscreen) CarBrowser.exitFullscreen() else showRelated()
+        }
         click(R.id.m_prev) { NowPlaying.previous() }
         click(R.id.m_play) { NowPlaying.toggle() }
         click(R.id.m_next) { NowPlaying.next() }
         click(R.id.related_close) { hideRelated() }
         click(R.id.btn_mirror_stop) { Mirror.stop() }
-        click(R.id.btn_fit) {
-            val f = CarBrowser.cycleFit(context)
-            showToast(f.label)
-            if (mirroring && zoomed) animateZoom(videoMatrix(phoneSize()))
-        }
-        click(R.id.btn_zoom) {
-            autoZoom = !autoZoom
-            showToast(if (autoZoom) "Zoom al video: automático" else "Zoom al video: apagado")
-            updateZoom()
-        }
 
         val web = CarBrowser.attach(context, this)
         webContainer.addView(
@@ -301,14 +296,14 @@ class CarUi(
     private fun setMirroring(on: Boolean) {
         if (!ready || on == mirroring) return
         mirroring = on
-        listOf(R.id.btn_back, R.id.btn_home, R.id.btn_related, R.id.btn_lyrics).forEach {
+        listOf(R.id.btn_back, R.id.btn_related).forEach {
             findViewById<View>(it).visibility = if (on) View.GONE else View.VISIBLE
         }
         findViewById<View>(R.id.btn_mirror_stop).visibility = if (on) View.VISIBLE else View.GONE
-        findViewById<View>(R.id.btn_zoom).visibility = if (on) View.VISIBLE else View.GONE
         zoomAnim?.cancel()
         zoomed = false
-        mirrorView.setTransform(null)
+        lastPhone = null
+        mirrorView.setTransform(fitMatrix(phoneSize()))
         handler.removeCallbacks(zoomTick)
         if (on) handler.post(zoomTick)
         if (on) {
@@ -336,13 +331,43 @@ class CarUi(
      * Ampliamos esa franja para que llene la pantalla del auto. Al pausar
      * (para buscar otro video) vuelve a verse la app completa.
      */
+    private var lastPhone: Point? = null
+
     private fun updateZoom() {
         val phone = phoneSize()
+        // Si giraste el teléfono, la captura cambia de tamaño: reconectar a la nueva resolución.
+        if (phone != lastPhone) {
+            lastPhone = phone
+            connectMirror()
+            zoomAnim?.cancel()
+            zoomed = false
+            mirrorView.setTransform(fitMatrix(phone))
+        }
         val portrait = phone.y > phone.x
         val want = autoZoom && portrait && (NowPlaying.youtubePlaying() ?: true)
         if (want == zoomed) return
         zoomed = want
-        animateZoom(if (want) videoMatrix(phone) else Matrix())
+        animateZoom(if (want) videoMatrix(phone) else fitMatrix(phone))
+    }
+
+    /*
+     * La captura llega a la resolución real del teléfono y TextureView la estira
+     * a todo el recuadro. Estas matrices dicen dónde debe caer cada píxel del
+     * teléfono en la pantalla del auto (sin deformar).
+     */
+    private fun fromPhone(phone: Point, m: Matrix): Matrix = Matrix(m).apply {
+        preScale(phone.x / surfaceWidth.toFloat(), phone.y / surfaceHeight.toFloat())
+    }
+
+    /** Teléfono completo, centrado y sin deformar. */
+    private fun fitMatrix(phone: Point): Matrix {
+        val pw = phone.x.toFloat(); val ph = phone.y.toFloat()
+        val w = surfaceWidth.toFloat(); val h = surfaceHeight.toFloat()
+        val k = min(w / pw, h / ph)
+        return fromPhone(phone, Matrix().apply {
+            postScale(k, k)
+            postTranslate((w - pw * k) / 2f, (h - ph * k) / 2f)
+        })
     }
 
     private fun animateZoom(target: Matrix) {
@@ -364,31 +389,19 @@ class CarUi(
         }
     }
 
+    /** Solo la franja del reproductor de YouTube (arriba, 16:9), ampliada y centrada. */
     private fun videoMatrix(phone: Point): Matrix {
         val pw = phone.x.toFloat()
-        val ph = phone.y.toFloat()
-        val w = surfaceWidth.toFloat()
-        val h = surfaceHeight.toFloat()
-        // Cómo queda el teléfono dentro de la pantalla del auto (centrado y ajustado)
-        val k = min(w / pw, h / ph)
-        val ox = (w - pw * k) / 2f
-        val oy = (h - ph * k) / 2f
-        // Franja del reproductor de YouTube: justo debajo de la barra de estado, 16:9
-        val rx = ox
-        val ry = oy + statusBarPx() * k
-        val rw = pw * k
-        val rh = pw * 9f / 16f * k
-        // Ajustar = cabe completo; Llenar = cubre todo (recorta); Estirar = cubre sin recortar
-        val (sx, sy) = when (CarBrowser.fit(context)) {
-            CarBrowser.Fit.AJUSTAR -> min(w / rw, h / rh).let { it to it }
-            CarBrowser.Fit.LLENAR -> kotlin.math.max(w / rw, h / rh).let { it to it }
-            CarBrowser.Fit.ESTIRAR -> (w / rw) to (h / rh)
-        }
-        return Matrix().apply {
-            postTranslate(-rx, -ry)
-            postScale(sx, sy)
-            postTranslate((w - rw * sx) / 2f, (h - rh * sy) / 2f)
-        }
+        val w = surfaceWidth.toFloat(); val h = surfaceHeight.toFloat()
+        val ry = statusBarPx().toFloat()
+        val rw = pw
+        val rh = pw * 9f / 16f
+        val sc = min(w / rw, h / rh)
+        return fromPhone(phone, Matrix().apply {
+            postTranslate(0f, -ry)
+            postScale(sc, sc)
+            postTranslate((w - rw * sc) / 2f, (h - rh * sc) / 2f)
+        })
     }
 
     private fun phoneSize(): Point {
@@ -401,7 +414,7 @@ class CarUi(
     }
 
     private fun statusBarPx(): Int {
-        val res = context.applicationContext.resources
+        val res = android.content.res.Resources.getSystem()
         val id = res.getIdentifier("status_bar_height", "dimen", "android")
         return if (id > 0) res.getDimensionPixelSize(id) else 0
     }
@@ -409,8 +422,11 @@ class CarUi(
     private fun connectMirror() {
         val surface = mirrorSurface ?: return
         if (!mirroring) return
-        val dpi = context.resources.displayMetrics.densityDpi
-        if (!Mirror.attach(surface, surfaceWidth, surfaceHeight, dpi)) {
+        // Capturar a la resolución real del teléfono (antes: al tamaño del auto → borroso)
+        val phone = phoneSize()
+        mirrorTexture?.setDefaultBufferSize(phone.x, phone.y)
+        val dpi = android.content.res.Resources.getSystem().displayMetrics.densityDpi
+        if (!Mirror.attach(surface, phone.x, phone.y, dpi)) {
             showToast("No se pudo iniciar el espejo")
         }
     }
@@ -447,7 +463,7 @@ class CarUi(
 
         // Sin nada sonando por 2 minutos → modo ambiente.
         val idle = SystemClock.uptimeMillis() - lastInteraction > 120_000
-        if (idle && s?.playing != true && !musicPlaying && !ambientShown && !moving && !mirroring) showAmbient()
+        // (El modo ambiente automático se quitó: pantalla limpia.)
     }
 
     // --- Dock ---
@@ -553,7 +569,7 @@ class CarUi(
             music.visibility = View.GONE
             return
         }
-        music.visibility = View.VISIBLE
+        music.visibility = View.GONE // barra de música quitada: dock solo con atrás y más videos
         mTitle.text = track.title
         mArtist.text = track.artist
         if (track.art != null) mArt.setImageBitmap(track.art) else mArt.setImageResource(R.drawable.ic_music)
