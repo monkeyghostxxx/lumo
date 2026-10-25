@@ -177,35 +177,21 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Espejo -->
-        <LinearLayout style="@style/GlassCard">
-
-            <TextView
-                style="@style/CardLabel"
-                android:text="ESPEJO DE YOUTUBE" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Muestra la app oficial de YouTube en el auto, con tu Premium y sin anuncios. Cuando Android pregunte, elige «Una sola app» → YouTube. Al reproducir, el video se amplía solo para llenar la pantalla del auto."
-                android:textColor="@color/text_dim"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/btn_mirror"
-                style="@style/PillButton"
-                android:layout_width="match_parent"
-                android:layout_marginTop="12dp"
-                android:text="Iniciar espejo" />
-        </LinearLayout>
-
         <!-- Enviar enlace -->
         <LinearLayout style="@style/GlassCard">
 
             <TextView
                 style="@style/CardLabel"
                 android:text="MANDAR AL AUTO" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:lineSpacingExtra="2dp"
+                android:text="En la app de YouTube toca Compartir → «Ver en Kali (auto)». El video se abre en Kali en la pantalla del auto, en HD. También puedes buscar o pegar un enlace aquí."
+                android:textColor="@color/text_dim"
+                android:textSize="14sp" />
 
             <EditText
                 android:id="@+id/input"

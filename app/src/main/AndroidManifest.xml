@@ -4,11 +4,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- Espejo de YouTube en el auto -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <!--
       Android Auto solo admite "apps para auto estacionado" de la categoría juegos
       (Android 15+). Lumo se declara así para poder correr en la pantalla del auto,
@@ -62,7 +57,7 @@
             android:name=".ShareActivity"
             android:exported="true"
             android:excludeFromRecents="true"
-            android:label="Ver en el auto"
+            android:label="Ver en Kali (auto)"
             android:noHistory="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -71,17 +66,6 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".mirror.MirrorActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
-        <service
-            android:name=".mirror.MirrorService"
-            android:exported="false"
-            android:foregroundServiceType="mediaProjection" />
 
         <!-- Ver qué suena en Spotify/YouTube Music para el dock del auto -->
         <service

@@ -30,7 +30,7 @@ object DataBudget {
     fun lumoGb(c: Context): Float = p(c).getFloat("lumo_gb", 16f)
     fun cutDay(c: Context): Int = p(c).getInt("cut_day", 1)
     fun hoursPerDay(c: Context): Float = p(c).getFloat("hours_day", 1f)
-    fun mode(c: Context): Mode = runCatching { Mode.valueOf(p(c).getString("mode", "AUTO")!!) }.getOrDefault(Mode.AUTO)
+    fun mode(c: Context): Mode = runCatching { Mode.valueOf(p(c).getString("mode", "MAX")!!) }.getOrDefault(Mode.AUTO)
 
     fun setLumoGb(c: Context, v: Float) = p(c).edit().putFloat("lumo_gb", v.coerceIn(0.5f, 500f)).apply()
     fun setCutDay(c: Context, v: Int) = p(c).edit().putInt("cut_day", v.coerceIn(1, 31)).apply()
